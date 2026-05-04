@@ -137,5 +137,29 @@ namespace api.Controllers
             if (!success) return NotFound();
             return Ok(comment);
         }
+
+        [HttpDelete("{id}/comment/{commentId}")]
+        public async Task<IActionResult> DeleteComment(string id, string commentId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            var post = await _postService.GetPostByIdAsync(id);
+            if (post == null)
+                return NotFound(new { message = "Post not found" });
+
+            var comment = post.Comments.FirstOrDefault(c => c.Id == commentId);
+            if (comment == null)
+                return NotFound(new { message = "Comment not found" });
+
+            if (comment.UserId != userId)
+                return Unauthorized(new { message = "You cannot delete this comment" });
+
+            var success = await _postService.RemoveCommentAsync(id, commentId);
+            if (!success)
+                return StatusCode(500, new { message = "Deletion failed" });
+            return NoContent();
+        }
     }
 }

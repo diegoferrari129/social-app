@@ -58,5 +58,13 @@ namespace api.Services
             var result = await _postsCollection.UpdateOneAsync(filter, update);
             return result.IsAcknowledged && result.ModifiedCount > 0;
         }
+
+        public async Task<bool> RemoveCommentAsync(string postId, string commentId)
+        {
+            var filter = Builders<Post>.Filter.Eq(p => p.Id, postId);
+            var update = Builders<Post>.Update.PullFilter(p => p.Comments, c => c.Id == commentId);
+            var result = await _postsCollection.UpdateOneAsync(filter, update);
+            return result.IsAcknowledged && result.ModifiedCount > 0;
+        }
     }
 }
