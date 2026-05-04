@@ -27,5 +27,19 @@ namespace api.Services
             else
                 return false;
         }
+
+        public async Task<List<User>> GetSuggestedUsersAsync(string currentUserId, int limit = 10)
+        {
+            var currentUser = await GetByIdAsync(currentUserId);
+            if (currentUser == null)
+                return new List<User>();
+
+            var excludedIds = new List<string> { currentUserId };
+            excludedIds.AddRange(currentUser.Following ?? new List<string>());
+
+            var filter = Builders<User>.Filter.Where(u => !excludedIds.Contains(u.Id!));
+
+            return await _usersCollection.Find(filter).Limit(limit).ToListAsync();
+        }
     }
 }

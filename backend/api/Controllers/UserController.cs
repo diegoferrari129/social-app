@@ -160,6 +160,28 @@ namespace api.Controllers
             });
         }
 
+        [HttpGet("suggested")]
+        [Authorize]
+        public async Task<IActionResult> GetSuggestedUsers([FromQuery] int limit = 10)
+        {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(currentUserId))
+                return Unauthorized(new { message = "Utente non autenticato" });
+
+            var suggestedUsers = await _userService.GetSuggestedUsersAsync(currentUserId, limit);
+
+            var result = suggestedUsers.Select(u => new
+            {
+                u.Id,
+                u.Name,
+                u.Bio,
+                u.ImgUrl,
+                FollowersCount = u.Followers?.Count ?? 0
+            });
+
+            return Ok(result);
+        }
+
         private string GenerateJwtToken(User user)
         {
             var jwtSecret = _configuration["JwtSecrets:Secret"]
