@@ -24,3 +24,9 @@
 04-05-2026 17:24:54 [INF] Application started. Press Ctrl+C to shut down.
 04-05-2026 17:24:54 [INF] Hosting environment: Development
 04-05-2026 17:24:54 [INF] Content root path: C:\Users\diego\Desktop\.net\social-app\backend\api
+04-05-2026 17:29:39 [INF] application start
+04-05-2026 17:29:39 [INF] Now listening on: https://localhost:7022
+04-05-2026 17:29:39 [INF] Now listening on: http://localhost:5256
+04-05-2026 17:29:39 [INF] Application started. Press Ctrl+C to shut down.
+04-05-2026 17:29:39 [INF] Hosting environment: Development
+04-05-2026 17:29:39 [INF] Content root path: C:\Users\diego\Desktop\.net\social-app\backend\api
