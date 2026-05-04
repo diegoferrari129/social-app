@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using api.DTOs;
+using api.Models;
+using api.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-
-using api.DTOs;
-using api.Models;
-using api.Services;
 
 namespace api.Controllers
 {
@@ -81,6 +81,39 @@ namespace api.Controllers
                     user.Bio,
                     user.ImgUrl
                 }
+            });
+        }
+
+        [HttpPatch("update/{id}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserDto request)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId != id)
+                return Unauthorized(new { message = "You can only update your own profile" });
+
+            var user = await _userService.GetByIdAsync(id);
+            if (user == null)
+                return NotFound(new { message = "User not found" });
+
+            if (!string.IsNullOrWhiteSpace(request.Name))
+                user.Name = request.Name;
+            if (!string.IsNullOrWhiteSpace(request.Bio))
+                user.Bio = request.Bio;
+            if (!string.IsNullOrWhiteSpace(request.ImgUrl))
+                user.ImgUrl = request.ImgUrl;
+
+            await _userService.UpdateAsync(id, user);
+
+            _logger.LogInformation("User {Id} updated", id);
+
+            return Ok(new
+            {
+                user.Id,
+                user.Name,
+                user.Email,
+                user.Bio,
+                user.ImgUrl
             });
         }
 
