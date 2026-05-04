@@ -53,7 +53,24 @@ namespace api.Controllers
 
             _logger.LogInformation("Post {PostId} created by user {UserId}", post.Id, userId);
 
+            return CreatedAtAction(nameof(GetPost), new { id = post.Id }, post);
+        }
+
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetUserPosts(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var posts = await _postService.GetPostsByUserIdAsync(userId, page, pageSize);
+            return Ok(posts);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetPost(string id)
+        {
+            var post = await _postService.GetPostByIdAsync(id);
+            if (post == null)
+                return NotFound(new { message = "Post not found" });
             return Ok(post);
         }
+
     }
 }

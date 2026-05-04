@@ -20,5 +20,20 @@ namespace api.Services
             post.CreatedAt = DateTime.UtcNow;
             await _postsCollection.InsertOneAsync(post);
         }
+
+        public async Task<List<Post>> GetPostsByUserIdAsync(string userId, int page = 1, int pageSize = 10)
+        {
+            var filter = Builders<Post>.Filter.Eq(p => p.UserId, userId);
+            return await _postsCollection.Find(filter)
+                .SortByDescending(p => p.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Limit(pageSize)
+                .ToListAsync();
+        }
+
+        public async Task<Post?> GetPostByIdAsync(string id)
+        {
+            return await _postsCollection.Find(p => p.Id == id).FirstOrDefaultAsync();
+        }
     }
 }
