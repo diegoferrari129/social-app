@@ -72,5 +72,23 @@ namespace api.Controllers
             return Ok(post);
         }
 
+        [HttpPost("{id}/comment")]
+        public async Task<IActionResult> AddComment(string id, [FromBody] CommentDto request)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userName = User.FindFirstValue(ClaimTypes.Name);
+            if (userId == null || userName == null) return Unauthorized();
+
+            var comment = new Comment
+            {
+                UserId = userId,
+                UserName = userName,
+                Text = request.Text
+            };
+
+            var success = await _postService.AddCommentAsync(id, comment);
+            if (!success) return NotFound();
+            return Ok(comment);
+        }
     }
 }

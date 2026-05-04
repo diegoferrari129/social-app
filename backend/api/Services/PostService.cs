@@ -1,5 +1,6 @@
 ﻿using api.Models;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace api.Services
@@ -34,6 +35,16 @@ namespace api.Services
         public async Task<Post?> GetPostByIdAsync(string id)
         {
             return await _postsCollection.Find(p => p.Id == id).FirstOrDefaultAsync();
+        }
+
+        public async Task<bool> AddCommentAsync(string postId, Comment comment)
+        {
+            comment.Id = ObjectId.GenerateNewId().ToString();
+            comment.CreatedAt = DateTime.UtcNow;
+            var filter = Builders<Post>.Filter.Eq(p => p.Id, postId);
+            var update = Builders<Post>.Update.Push(p => p.Comments, comment);
+            var result = await _postsCollection.UpdateOneAsync(filter, update);
+            return result.IsAcknowledged && result.ModifiedCount > 0;
         }
     }
 }
