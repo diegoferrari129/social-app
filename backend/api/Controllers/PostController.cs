@@ -119,6 +119,19 @@ namespace api.Controllers
             return NoContent();
         }
 
+        [HttpPost("{id}/like")]
+        public async Task<IActionResult> ToggleLike(string id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            var success = await _postService.ToggleLikeAsync(id, userId);
+            if (!success)
+                return NotFound(new { message = "Post not found" });
+            return Ok(new { success = true });
+        }
+
         [HttpPost("{id}/comment")]
         public async Task<IActionResult> AddComment(string id, [FromBody] CommentDto request)
         {

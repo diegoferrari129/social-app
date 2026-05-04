@@ -49,6 +49,20 @@ namespace api.Services
             return result.IsAcknowledged && result.DeletedCount > 0;
         }
 
+        public async Task<bool> ToggleLikeAsync(string postId, string userId)
+        {
+            var post = await GetPostByIdAsync(postId);
+            if (post == null) return false;
+
+            if (post.Likes.Contains(userId))
+                post.Likes.Remove(userId);
+            else
+                post.Likes.Add(userId);
+
+            var result = await _postsCollection.ReplaceOneAsync(p => p.Id == postId, post);
+            return result.IsAcknowledged && result.ModifiedCount > 0;
+        }
+
         public async Task<bool> AddCommentAsync(string postId, Comment comment)
         {
             comment.Id = ObjectId.GenerateNewId().ToString();
