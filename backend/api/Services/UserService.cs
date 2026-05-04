@@ -16,5 +16,6 @@ namespace api.Services
         }
 
         public async Task CreateAsync(User user) => await _usersCollection.InsertOneAsync(user);
+        public async Task<User?> GetByEmailAsync(string email) => await _usersCollection.Find(x => x.Email == email).FirstOrDefaultAsync();
     }
 }
