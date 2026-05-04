@@ -41,5 +41,22 @@ namespace api.Services
 
             return await _usersCollection.Find(filter).Limit(limit).ToListAsync();
         }
+
+        public async Task<bool> DeleteAsync(string userId)
+        {
+            var deleteResult = await _usersCollection.DeleteOneAsync(u => u.Id == userId);
+            if (!deleteResult.IsAcknowledged || deleteResult.DeletedCount == 0)
+                return false;
+
+            var updateFollowingFilter = Builders<User>.Filter.AnyIn(u => u.Following, new[] { userId });
+            var updateFollowing = Builders<User>.Update.Pull(u => u.Following, userId);
+            await _usersCollection.UpdateManyAsync(updateFollowingFilter, updateFollowing);
+
+            var updateFollowersFilter = Builders<User>.Filter.AnyIn(u => u.Followers, new[] { userId });
+            var updateFollowers = Builders<User>.Update.Pull(u => u.Followers, userId);
+            await _usersCollection.UpdateManyAsync(updateFollowersFilter, updateFollowers);
+
+            return true;
+        }
     }
 }

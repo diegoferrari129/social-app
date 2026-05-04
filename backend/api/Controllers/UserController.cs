@@ -182,6 +182,27 @@ namespace api.Controllers
             return Ok(result);
         }
 
+        [HttpDelete("{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (currentUserId == null || currentUserId != id)
+                return Unauthorized(new { message = "You can only delete your own account" });
+
+            var user = await _userService.GetByIdAsync(id);
+            if (user == null)
+                return NotFound(new { message = "User not found" });
+
+            var deleted = await _userService.DeleteAsync(id);
+            if (!deleted)
+                return StatusCode(500, new { message = "Deletion failed" });
+
+            _logger.LogInformation("User {UserId} deleted their account", id);
+
+            return NoContent();
+        }
+
         private string GenerateJwtToken(User user)
         {
             var jwtSecret = _configuration["JwtSecrets:Secret"]
