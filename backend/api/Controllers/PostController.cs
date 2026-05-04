@@ -72,6 +72,33 @@ namespace api.Controllers
             return Ok(post);
         }
 
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdatePost(string id, [FromBody] UpdatePostDto request)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            var existing = await _postService.GetPostByIdAsync(id);
+            if (existing == null)
+                return NotFound(new { message = "Post not found" });
+            if (existing.UserId != userId)
+                return Unauthorized(new { message = "You can only edit your own posts" });
+
+            if (!string.IsNullOrEmpty(request.Title))
+                existing.Title = request.Title;
+            if (!string.IsNullOrEmpty(request.Content))
+                existing.Content = request.Content;
+            if (request.PostImg != null)
+                existing.PostImg = request.PostImg;
+
+            var updated = await _postService.UpdateAsync(id, existing);
+            if (!updated)
+                return StatusCode(500, new { message = "Update failed" });
+
+            return Ok(existing);
+        }
+
         [HttpPost("{id}/comment")]
         public async Task<IActionResult> AddComment(string id, [FromBody] CommentDto request)
         {

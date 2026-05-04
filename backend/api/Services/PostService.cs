@@ -37,6 +37,12 @@ namespace api.Services
             return await _postsCollection.Find(p => p.Id == id).FirstOrDefaultAsync();
         }
 
+        public async Task<bool> UpdateAsync(string id, Post updatedPost)
+        {
+            var result = await _postsCollection.ReplaceOneAsync(p => p.Id == id, updatedPost);
+            return result.IsAcknowledged && result.ModifiedCount > 0;
+        }
+
         public async Task<bool> AddCommentAsync(string postId, Comment comment)
         {
             comment.Id = ObjectId.GenerateNewId().ToString();
