@@ -1,3 +1,4 @@
+using api.Filters;
 using api.Models;
 using api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -26,7 +27,10 @@ builder.Services.AddSingleton<UserService>();
 
 builder.Services.AddOpenApi();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<GlobalExHandler>();
+});
 
 var jwtSecret = builder.Configuration["JwtSecrets:Secret"];
 if (string.IsNullOrEmpty(jwtSecret))

@@ -27,6 +27,7 @@ namespace api.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDto request)
         {
+
             if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
                 return BadRequest(new { message = "email and password required" });
 
