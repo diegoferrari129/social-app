@@ -117,6 +117,49 @@ namespace api.Controllers
             });
         }
 
+        [HttpPost("follow/{targetId}")]
+        [Authorize]
+        public async Task<IActionResult> FollowUser(string targetId)
+        {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(currentUserId))
+                return Unauthorized(new { message = "User not authenticated" });
+
+            if (currentUserId == targetId)
+                return BadRequest(new { message = "You cannot follow yourself" });
+
+            var currentUser = await _userService.GetByIdAsync(currentUserId);
+            var targetUser = await _userService.GetByIdAsync(targetId);
+
+            if (currentUser == null || targetUser == null)
+                return NotFound(new { message = "User not found" });
+
+            bool isFollowing = currentUser.Following.Contains(targetId);
+
+            if (isFollowing)
+            {
+                currentUser.Following.Remove(targetId);
+                targetUser.Followers.Remove(currentUserId);
+                _logger.LogInformation("User {CurrentId} unfollowed {TargetId}", currentUserId, targetId);
+            }
+            else
+            {
+                currentUser.Following.Add(targetId);
+                targetUser.Followers.Add(currentUserId);
+                _logger.LogInformation("User {CurrentId} started following {TargetId}", currentUserId, targetId);
+            }
+
+            await _userService.UpdateAsync(currentUserId, currentUser);
+            await _userService.UpdateAsync(targetId, targetUser);
+
+            return Ok(new
+            {
+                success = true,
+                action = isFollowing ? "unfollowed" : "followed",
+                targetUserId = targetId
+            });
+        }
+
         private string GenerateJwtToken(User user)
         {
             var jwtSecret = _configuration["JwtSecrets:Secret"]
