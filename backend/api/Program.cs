@@ -1,3 +1,5 @@
+using api.Models;
+using api.Services;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,9 +15,18 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
+builder.Services.Configure<MongoDbSettings>(
+    builder.Configuration.GetSection("MongoDB"));
+
+builder.Services.AddSingleton<UserService>();
+
 builder.Services.AddOpenApi();
 
+builder.Services.AddControllers();
+
 var app = builder.Build();
+
+app.MapControllers();
 
 if (app.Environment.IsDevelopment())
 {
