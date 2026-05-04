@@ -99,6 +99,26 @@ namespace api.Controllers
             return Ok(existing);
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeletePost(string id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            var post = await _postService.GetPostByIdAsync(id);
+            if (post == null)
+                return NotFound(new { message = "Post not found" });
+            if (post.UserId != userId)
+                return Unauthorized(new { message = "You can only delete your own posts" });
+
+            var deleted = await _postService.DeleteAsync(id);
+            if (!deleted)
+                return StatusCode(500, new { message = "Deletion failed" });
+
+            return NoContent();
+        }
+
         [HttpPost("{id}/comment")]
         public async Task<IActionResult> AddComment(string id, [FromBody] CommentDto request)
         {

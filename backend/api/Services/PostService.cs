@@ -43,6 +43,12 @@ namespace api.Services
             return result.IsAcknowledged && result.ModifiedCount > 0;
         }
 
+        public async Task<bool> DeleteAsync(string id)
+        {
+            var result = await _postsCollection.DeleteOneAsync(p => p.Id == id);
+            return result.IsAcknowledged && result.DeletedCount > 0;
+        }
+
         public async Task<bool> AddCommentAsync(string postId, Comment comment)
         {
             comment.Id = ObjectId.GenerateNewId().ToString();
