@@ -35,6 +35,18 @@ builder.Services.AddControllers(options =>
     options.Filters.Add<GlobalExHandler>();
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowClient",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:4200")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        });
+});
+
 var jwtSecret = builder.Configuration["JwtSecrets:Secret"];
 if (string.IsNullOrEmpty(jwtSecret))
     throw new InvalidOperationException("JWT Secret missing");
@@ -59,9 +71,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 var app = builder.Build();
 
+app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseCors("AllowClient");
 app.MapControllers();
 
 if (app.Environment.IsDevelopment())
@@ -73,8 +86,6 @@ if (app.Environment.IsDevelopment())
                .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
     });
 }
-
-app.UseHttpsRedirection();
 
 try
 {
