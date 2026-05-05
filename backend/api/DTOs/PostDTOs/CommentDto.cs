@@ -1,4 +1,4 @@
-﻿namespace api.DTOs
+﻿namespace api.DTOs.PostDTOs
 {
     public class CommentDto
     {

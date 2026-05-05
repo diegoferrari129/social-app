@@ -1,4 +1,4 @@
-﻿using api.DTOs;
+﻿using api.DTOs.PostDTOs;
 using api.Models;
 using api.Services;
 using Microsoft.AspNetCore.Authorization;
