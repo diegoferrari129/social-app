@@ -34,5 +34,44 @@ namespace api.Controllers
             _logger.LogInformation("Message sent from {Sender} to {To}", senderId, request.ToUserId);
             return Ok(message);
         }
+
+        [HttpGet("messages/{conversationId}")]
+        public async Task<IActionResult> GetMessages(string conversationId, [FromQuery] int page = 1, [FromQuery] int pageSize = 50)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var conv = (await _chatService.GetUserChatsAsync(userId)).FirstOrDefault(c => c.Id == conversationId);
+            if (conv == null)
+                return Unauthorized("You are not part of this conversation");
+
+            var messages = await _chatService.GetMessagesAsync(conversationId, page, pageSize);
+            return Ok(messages);
+        }
+
+        [HttpGet("chats")]
+        public async Task<IActionResult> GetConversations()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var chats = await _chatService.GetUserChatsAsync(userId);
+
+            var result = new List<ChatResponseDto>();
+            foreach (var chat in chats)
+            {
+                var otherUserId = chat.Participants.First(p => p != userId);
+                var otherUser = await _userService.GetByIdAsync(otherUserId);
+                result.Add(new ChatResponseDto
+                {
+                    Id = chat.Id!,
+                    OtherUserId = otherUserId,
+                    OtherUserName = otherUser?.Name ?? "Unknown",
+                    LastMessage = chat.LastMessage,
+                    LastMessageTime = chat.LastMessageTime
+                });
+            }
+            return Ok(result);
+        }
     }
 }

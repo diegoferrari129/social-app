@@ -59,8 +59,23 @@ namespace api.Services
                 chat.LastMessageTime = DateTime.UtcNow;
                 await _conversationsCollection.ReplaceOneAsync(c => c.Id == chatId, chat);
             }
-
             return message;
+        }
+
+        public async Task<List<Message>> GetMessagesAsync(string chatId, int page = 1, int pageSize = 50)
+        {
+            return await _messagesCollection.Find(m => m.ChatId== chatId)
+                .SortBy(m => m.SentAt)
+                .Skip((page - 1) * pageSize)
+                .Limit(pageSize)
+                .ToListAsync();
+        }
+
+        public async Task<List<Chat>> GetUserChatsAsync(string userId)
+        {
+            return await _conversationsCollection.Find(c => c.Participants.Contains(userId))
+                .SortByDescending(c => c.LastMessageTime)
+                .ToListAsync();
         }
     }
 }
