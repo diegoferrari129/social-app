@@ -36,21 +36,21 @@ namespace api.Controllers
         }
 
         [HttpGet("messages/{conversationId}")]
-        public async Task<IActionResult> GetMessages(string conversationId, [FromQuery] int page = 1, [FromQuery] int pageSize = 50)
+        public async Task<IActionResult> GetMessages(string chatId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
-            var conv = (await _chatService.GetUserChatsAsync(userId)).FirstOrDefault(c => c.Id == conversationId);
+            var conv = (await _chatService.GetUserChatsAsync(userId)).FirstOrDefault(c => c.Id == chatId);
             if (conv == null)
                 return Unauthorized("You are not part of this conversation");
 
-            var messages = await _chatService.GetMessagesAsync(conversationId, page, pageSize);
+            var messages = await _chatService.GetMessagesAsync(chatId, userId);
             return Ok(messages);
         }
 
         [HttpGet("chats")]
-        public async Task<IActionResult> GetConversations()
+        public async Task<IActionResult> GetChats()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId)) return Unauthorized();

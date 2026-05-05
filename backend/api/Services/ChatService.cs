@@ -62,13 +62,20 @@ namespace api.Services
             return message;
         }
 
-        public async Task<List<Message>> GetMessagesAsync(string chatId, int page = 1, int pageSize = 50)
+        public async Task<List<Message>> GetMessagesAsync(string chatId, string currentUserId)
         {
-            return await _messagesCollection.Find(m => m.ChatId== chatId)
+            var messages = await _messagesCollection
+                .Find(m => m.ChatId == chatId)
                 .SortBy(m => m.SentAt)
-                .Skip((page - 1) * pageSize)
-                .Limit(pageSize)
                 .ToListAsync();
+
+            foreach (var msg in messages.Where(m => m.SenderId != currentUserId && !m.IsRead))
+            {
+                msg.IsRead = true;
+                await _messagesCollection.ReplaceOneAsync(m => m.Id == msg.Id, msg);
+            }
+
+            return messages;
         }
 
         public async Task<List<Chat>> GetUserChatsAsync(string userId)
