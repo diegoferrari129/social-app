@@ -20,13 +20,25 @@ namespace api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetNotifications([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        public async Task<IActionResult> GetNotifications()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
-            var notifications = await _notificationService.GetUserNotificationsAsync(userId, page, pageSize);
+            var notifications = await _notificationService.GetUserNotificationsAsync(userId);
             return Ok(notifications);
+        }
+
+        [HttpPost("mark-read/{id}")]
+        public async Task<IActionResult> MarkAsRead(string id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            await _notificationService.MarkAsReadAsync(id);
+
+            return Ok(new { success = true });
         }
     }
 }

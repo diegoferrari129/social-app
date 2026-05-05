@@ -20,14 +20,19 @@ namespace api.Services
             await _notificationsCollection.InsertOneAsync(notification);
         }
 
-        public async Task<List<Notification>> GetUserNotificationsAsync(string userId, int page = 1, int pageSize = 20)
+        public async Task<List<Notification>> GetUserNotificationsAsync(string userId)
         {
             return await _notificationsCollection
                 .Find(n => n.UserId == userId)
                 .SortByDescending(n => n.CreatedAt)
-                .Skip((page - 1) * pageSize)
-                .Limit(pageSize)
                 .ToListAsync();
+        }
+
+        public async Task MarkAsReadAsync(string notificationId)
+        {
+            var filter = Builders<Notification>.Filter.Eq(n => n.Id, notificationId);
+            var update = Builders<Notification>.Update.Set(n => n.IsRead, true);
+            await _notificationsCollection.UpdateOneAsync(filter, update);
         }
     }
 }
