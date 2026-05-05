@@ -15,12 +15,14 @@ namespace api.Controllers
         private readonly PostService _postService;
         private readonly UserService _userService;
         private readonly ILogger<PostController> _logger;
+        private readonly NotificationService _notificationService;
 
-        public PostController(PostService postService, UserService userService, ILogger<PostController> logger)
+        public PostController(PostService postService, UserService userService, ILogger<PostController> logger, NotificationService notificationService)
         {
             _postService = postService;
             _userService = userService;
             _logger = logger;
+            _notificationService = notificationService;
         }
 
         [HttpGet("feed")]
@@ -142,9 +144,30 @@ namespace api.Controllers
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
+            var post = await _postService.GetPostByIdAsync(id);
+            if (post == null)
+                return NotFound(new { message = "Post not found" });
+
+            bool wasLiked = post.Likes.Contains(userId);
+
             var success = await _postService.ToggleLikeAsync(id, userId);
             if (!success)
                 return NotFound(new { message = "Post not found" });
+
+            if (!wasLiked)
+            {
+                var currentUser = await _userService.GetByIdAsync(userId);
+                var notification = new Notification
+                {
+                    UserId = post.UserId!,
+                    Type = "like",
+                    FromUserId = userId,
+                    FromUserName = currentUser?.Name ?? "Unknown",
+                    PostId = id,
+                    IsRead = false
+                };
+                await _notificationService.CreateAsync(notification);
+            }
             return Ok(new { success = true });
         }
 
@@ -162,8 +185,27 @@ namespace api.Controllers
                 Text = request.Text
             };
 
+            var post = await _postService.GetPostByIdAsync(id);
+            if (post == null) return NotFound(new { message = "Post not found" });
+
             var success = await _postService.AddCommentAsync(id, comment);
             if (!success) return NotFound();
+
+            if (post.UserId != userId)
+            {
+                var notification = new Notification
+                {
+                    UserId = post.UserId!,
+                    Type = "comment",
+                    FromUserId = userId,
+                    FromUserName = userName,
+                    PostId = id,
+                    MessageText = request.Text.Length > 50 ? request.Text.Substring(0, 50) + "..." : request.Text,
+                    IsRead = false
+                };
+                await _notificationService.CreateAsync(notification);
+            }
+
             return Ok(comment);
         }
 

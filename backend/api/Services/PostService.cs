@@ -71,6 +71,7 @@ namespace api.Services
                 post.Likes.Remove(userId);
             else
                 post.Likes.Add(userId);
+            
 
             var result = await _postsCollection.ReplaceOneAsync(p => p.Id == postId, post);
             return result.IsAcknowledged && result.ModifiedCount > 0;
@@ -81,7 +82,9 @@ namespace api.Services
             comment.Id = ObjectId.GenerateNewId().ToString();
             comment.CreatedAt = DateTime.UtcNow;
             var filter = Builders<Post>.Filter.Eq(p => p.Id, postId);
+
             var update = Builders<Post>.Update.Push(p => p.Comments, comment);
+
             var result = await _postsCollection.UpdateOneAsync(filter, update);
             return result.IsAcknowledged && result.ModifiedCount > 0;
         }

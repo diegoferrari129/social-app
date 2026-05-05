@@ -1,4 +1,5 @@
 ﻿using api.DTOs;
+using api.Models;
 using api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,12 +15,14 @@ namespace api.Controllers
         private readonly ChatService _chatService;
         private readonly UserService _userService;
         private readonly ILogger<ChatController> _logger;
+        private readonly NotificationService _notificationService;
 
-        public ChatController(ChatService chatService, UserService userService, ILogger<ChatController> logger)
+        public ChatController(ChatService chatService, UserService userService, ILogger<ChatController> logger, NotificationService notificationService)
         {
             _chatService = chatService;
             _userService = userService;
             _logger = logger;
+            _notificationService = notificationService;
         }
 
         [HttpPost("send")]
@@ -28,8 +31,23 @@ namespace api.Controllers
             var senderId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(senderId)) return Unauthorized();
 
+            var senderName = User.FindFirstValue(ClaimTypes.Name) ?? "Unknown";
+
             var chatId = await _chatService.GetOrCreateChatAsync(senderId, request.ToUserId);
+
             var message = await _chatService.SendMessageAsync(chatId, senderId, request.Text);
+            if (message == null) return StatusCode(500, new { message = "Failed to send message" });
+
+            var notification = new Notification
+            {
+                UserId = request.ToUserId,
+                Type = "message",
+                FromUserId = senderId,
+                FromUserName = senderName,
+                MessageText = request.Text.Length > 50 ? request.Text.Substring(0, 50) + "..." : request.Text,
+                IsRead = false
+            };
+            await _notificationService.CreateAsync(notification);
 
             _logger.LogInformation("Message sent from {Sender} to {To}", senderId, request.ToUserId);
             return Ok(message);
