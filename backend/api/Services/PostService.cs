@@ -22,6 +22,16 @@ namespace api.Services
             await _postsCollection.InsertOneAsync(post);
         }
 
+        public async Task<List<Post>> GetFeedAsync(List<string> followingIds, int page = 1, int pageSize = 10)
+        {
+            var filter = Builders<Post>.Filter.In(p => p.UserId, followingIds);
+            return await _postsCollection.Find(filter)
+                .SortByDescending(p => p.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Limit(pageSize)
+                .ToListAsync();
+        }
+
         public async Task<List<Post>> GetPostsByUserIdAsync(string userId, int page = 1, int pageSize = 10)
         {
             var filter = Builders<Post>.Filter.Eq(p => p.UserId, userId);

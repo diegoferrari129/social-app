@@ -23,6 +23,22 @@ namespace api.Controllers
             _logger = logger;
         }
 
+        [HttpGet("feed")]
+        public async Task<IActionResult> GetFeed([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            var currentUser = await _userService.GetByIdAsync(userId);
+            if (currentUser == null)
+                return NotFound(new { message = "User not found" });
+
+            var followingIds = currentUser.Following ?? new List<string>();
+            var feed = await _postService.GetFeedAsync(followingIds, page, pageSize);
+            return Ok(feed);
+        }
+
         [HttpPost("create")]
         public async Task<IActionResult> CreatePost([FromBody] CreatePostDto request)
         {
