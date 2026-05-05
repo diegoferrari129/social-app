@@ -1,0 +1,66 @@
+﻿using api.Models;
+using Microsoft.Extensions.Options;
+using Microsoft.VisualBasic;
+using MongoDB.Driver;
+
+namespace api.Services
+{
+    public class ChatService
+    {
+        private readonly IMongoCollection<Chat> _conversationsCollection;
+        private readonly IMongoCollection<Message> _messagesCollection;
+
+        public ChatService(IOptions<MongoDbSettings> settings)
+        {
+            var client = new MongoClient(settings.Value.ConnectionString);
+            var database = client.GetDatabase(settings.Value.DatabaseName);
+            _conversationsCollection = database.GetCollection<Chat>(settings.Value.ChatsCollection);
+            _messagesCollection = database.GetCollection<Message>(settings.Value.MessagesCollection);
+        }
+
+        public async Task<string> GetOrCreateChatAsync(string userId1, string userId2)
+        {
+            var existing = await _conversationsCollection
+                    .Find(c => c.Participants.Contains(userId1) && c.Participants.Contains(userId2))
+                    .FirstOrDefaultAsync();
+
+            if (existing != null)
+                return existing.Id!;
+
+            var newConversation = new Chat
+            {
+                Participants = new List<string> { userId1, userId2 },
+                CreatedAt = DateTime.UtcNow,
+                LastMessage = "",
+                LastMessageTime = DateTime.UtcNow
+            };
+            await _conversationsCollection.InsertOneAsync(newConversation);
+
+            return newConversation.Id!;
+        }
+
+        public async Task<Message> SendMessageAsync(string chatId, string senderId, string text)
+        {
+            var message = new Message
+            {
+                ChatId = chatId,
+                SenderId = senderId,
+                Text = text,
+                SentAt = DateTime.UtcNow,
+                IsRead = false
+            };
+
+            await _messagesCollection.InsertOneAsync(message);
+
+            var chat = await _conversationsCollection.Find(c => c.Id == chatId).FirstOrDefaultAsync();
+            if (chat != null)
+            {
+                chat.LastMessage = text;
+                chat.LastMessageTime = DateTime.UtcNow;
+                await _conversationsCollection.ReplaceOneAsync(c => c.Id == chatId, chat);
+            }
+
+            return message;
+        }
+    }
+}

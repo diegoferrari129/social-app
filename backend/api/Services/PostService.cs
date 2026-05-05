@@ -22,20 +22,23 @@ namespace api.Services
             await _postsCollection.InsertOneAsync(post);
         }
 
-        public async Task<List<Post>> GetFeedAsync(List<string> followingIds, int page = 1, int pageSize = 10)
+        public async Task<List<Post>> GetFeedAsync(List<string> followingIds, int page, int pageSize)
         {
-            var filter = Builders<Post>.Filter.In(p => p.UserId, followingIds);
-            return await _postsCollection.Find(filter)
+            if (followingIds == null || followingIds.Count == 0)
+                return new List<Post>();
+
+            return await _postsCollection
+                .Find(p => followingIds.Contains(p.UserId!))
                 .SortByDescending(p => p.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Limit(pageSize)
                 .ToListAsync();
         }
 
-        public async Task<List<Post>> GetPostsByUserIdAsync(string userId, int page = 1, int pageSize = 10)
+        public async Task<List<Post>> GetPostsByUserIdAsync(string userId, int page, int pageSize)
         {
-            var filter = Builders<Post>.Filter.Eq(p => p.UserId, userId);
-            return await _postsCollection.Find(filter)
+            return await _postsCollection
+                .Find(p => p.UserId == userId)
                 .SortByDescending(p => p.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Limit(pageSize)
@@ -85,9 +88,14 @@ namespace api.Services
 
         public async Task<bool> RemoveCommentAsync(string postId, string commentId)
         {
-            var filter = Builders<Post>.Filter.Eq(p => p.Id, postId);
-            var update = Builders<Post>.Update.PullFilter(p => p.Comments, c => c.Id == commentId);
-            var result = await _postsCollection.UpdateOneAsync(filter, update);
+            var post = await GetPostByIdAsync(postId);
+            if (post == null) return false;
+
+            var comment = post.Comments.FirstOrDefault(c => c.Id == commentId);
+            if (comment == null) return false;
+
+            post.Comments.Remove(comment);
+            var result = await _postsCollection.ReplaceOneAsync(p => p.Id == postId, post);
             return result.IsAcknowledged && result.ModifiedCount > 0;
         }
     }

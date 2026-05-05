@@ -25,6 +25,7 @@ builder.Services.Configure<MongoDbSettings>(
 
 builder.Services.AddSingleton<UserService>();
 builder.Services.AddSingleton<PostService>();
+builder.Services.AddSingleton<ChatService>();
 
 builder.Services.AddOpenApi();
 
