@@ -73,5 +73,7 @@ namespace api.Controllers
             }
             return Ok(result);
         }
+
+        // todo: aggiungiere un counter per gli unread
     }
 }

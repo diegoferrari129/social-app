@@ -82,3 +82,16 @@
 05-05-2026 17:47:44 [INF] Application started. Press Ctrl+C to shut down.
 05-05-2026 17:47:44 [INF] Hosting environment: Development
 05-05-2026 17:47:44 [INF] Content root path: C:\Users\diego\Desktop\.net\social-app\backend\api
+05-05-2026 17:51:06 [INF] application start
+05-05-2026 17:51:06 [INF] Now listening on: https://localhost:7022
+05-05-2026 17:51:06 [INF] Now listening on: http://localhost:5256
+05-05-2026 17:51:06 [INF] Application started. Press Ctrl+C to shut down.
+05-05-2026 17:51:06 [INF] Hosting environment: Development
+05-05-2026 17:51:06 [INF] Content root path: C:\Users\diego\Desktop\.net\social-app\backend\api
+05-05-2026 19:20:55 [INF] application start
+05-05-2026 19:20:55 [INF] Now listening on: https://localhost:7022
+05-05-2026 19:20:55 [INF] Now listening on: http://localhost:5256
+05-05-2026 19:20:55 [INF] Application started. Press Ctrl+C to shut down.
+05-05-2026 19:20:55 [INF] Hosting environment: Development
+05-05-2026 19:20:55 [INF] Content root path: C:\Users\diego\Desktop\.net\social-app\backend\api
+05-05-2026 19:24:40 [INF] User 69f9fbac4e1cb522a37832c2 started following 69f8a5127060c950b629e975

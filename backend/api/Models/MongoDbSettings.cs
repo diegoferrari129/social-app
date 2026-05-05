@@ -8,5 +8,6 @@
         public string PostsCollection { get; set; } = null!;
         public string ChatsCollection { get; set; } = null!;
         public string MessagesCollection { get; set; } = null!;
+        public string NotificationsCollection { get; set; } = null!;
     }
 }

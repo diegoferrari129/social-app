@@ -17,11 +17,13 @@ namespace api.Controllers
         private readonly UserService _userService;
         private readonly ILogger<UserController> _logger;
         private readonly IConfiguration _configuration;
-        public UserController(UserService userService, ILogger<UserController> logger, IConfiguration configuration)
+        private readonly NotificationService _notificationService;
+        public UserController(UserService userService, ILogger<UserController> logger, IConfiguration configuration, NotificationService notificationService)
         {
             _userService = userService;
             _logger = logger;
             _configuration = configuration;
+            _notificationService = notificationService;
         }
 
         [HttpPost("create")]
@@ -148,6 +150,20 @@ namespace api.Controllers
                 currentUser.Following.Add(targetId);
                 targetUser.Followers.Add(currentUserId);
                 _logger.LogInformation("User {CurrentId} started following {TargetId}", currentUserId, targetId);
+            }
+
+            if (!isFollowing)
+            {
+                var notification = new Notification
+                {
+                    UserId = targetId,
+                    Type = "follow",
+                    FromUserId = currentUserId,
+                    FromUserName = currentUser.Name,
+                    IsRead = false
+                };
+
+                await _notificationService.CreateAsync(notification);
             }
 
             await _userService.UpdateAsync(currentUserId, currentUser);

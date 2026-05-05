@@ -84,5 +84,7 @@ namespace api.Services
                 .SortByDescending(c => c.LastMessageTime)
                 .ToListAsync();
         }
+
+        // todo: aggiungiere un counter per gli unread
     }
 }
