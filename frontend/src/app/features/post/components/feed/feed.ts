@@ -3,9 +3,10 @@ import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { PostService } from '../../post.service';
 import { Post } from '../../post.model';
+import { RouterModule } from '@angular/router';
 @Component({
   selector: 'app-feed',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './feed.html',
   styleUrl: './feed.css',
 })

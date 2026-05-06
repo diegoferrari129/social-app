@@ -4,6 +4,11 @@
   } @else if (error()) {
   <div class="text-red-500 text-center py-8">{{ error() }}</div>
   } @else {
+  <div class="flex justify-end mb-4">
+    <a routerLink="/create-post" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+      + Nuovo Post
+    </a>
+  </div>
   @for (post of posts(); track post.id) {
   <div class="bg-white rounded-lg shadow mb-6 p-4">
     <div class="flex items-center mb-3">
@@ -27,5 +32,6 @@
   } @empty {
   <div class="text-center py-8 text-gray-500">Not any feed yet. start by following someone</div>
   }
+
   }
 </div>

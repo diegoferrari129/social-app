@@ -13,6 +13,10 @@ export class PostService {
   getFeed(page: number = 1, pageSize: number = 10): Observable<Post[]> {
     return this.http.get<Post[]>(`${this.apiUrl}/post/feed?page=${page}&pageSize=${pageSize}`);
   }
+
+  createPost(postData: { title: string; content: string; postImg?: string }): Observable<Post> {
+    return this.http.post<Post>(`${this.apiUrl}/post/create`, postData);
+  }
 }
 
 
