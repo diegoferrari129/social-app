@@ -21,7 +21,7 @@ export class Login {
     this.authService.login(this.email, this.password).subscribe({
       next: (res) => {
         this.authService.saveToken(res.token);
-        this.router.navigate(['/home']);
+        this.router.navigate(['/feed']);
       },
       error: () => {
         this.errorMessage = 'Email o password errati';
