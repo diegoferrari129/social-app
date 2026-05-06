@@ -6,9 +6,11 @@
 # .NET build
 bin/
 obj/
+**/Logs/
+Logs/
 
 # OS
 .DS_Store
 Thumbs.db
 
-**/Logs/
+
