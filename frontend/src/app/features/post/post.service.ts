@@ -22,6 +22,10 @@ export class PostService {
     return this.http.get<Post>(`${this.apiUrl}/post/${id}`);
   }
 
+  getPostsByUserId(userId: string, page = 1, pageSize = 10): Observable<Post[]> {
+    return this.http.get<Post[]>(`${this.apiUrl}/post/user/${userId}?page=${page}&pageSize=${pageSize}`);
+  }
+
   toggleLike(postId: string): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/post/${postId}/like`, {});
   }

@@ -4,16 +4,25 @@
   } @else if (error()) {
   <div class="text-red-500 text-center py-8">{{ error() }}</div>
   } @else {
-  <div class="flex justify-end mb-4">
+  <!-- Intestazione con pulsante Nuovo Post e link ai miei post -->
+  <div class="flex justify-between items-center mb-4">
+    <a [routerLink]="['/user', currentUserId, 'posts']" class="text-blue-500 hover:underline">
+      My posts
+    </a>
     <a routerLink="/create-post" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-      + Nuovo Post
+      + New Post
     </a>
   </div>
+
+  <!-- Lista dei post del feed -->
   @for (post of posts(); track post.id) {
   <div class="bg-white rounded-lg shadow mb-6 p-4">
     <div class="flex items-center mb-3">
       <div class="font-semibold">{{ post.userName }}</div>
       <div class="text-xs text-gray-500 ml-2">{{ post.createdAt | date:'dd/MM/yyyy HH:mm' }}</div>
+      @if (post.userId === currentUserId) {
+      <a [routerLink]="['/post/edit', post.id]" class="text-blue-500 text-sm ml-4">Edit</a>
+      }
     </div>
     <h3 class="text-xl font-bold mb-2">
       <a [routerLink]="['/post', post.id]" class="hover:underline">{{ post.title }}</a>
@@ -24,16 +33,15 @@
     }
     <div class="flex items-center gap-4">
       <button (click)="onLike(post.id)" class="flex items-center gap-1 text-gray-600 hover:text-red-500">
-        likes: {{ post.likes.length }}
+        LIKES: {{ post.likes.length }}
       </button>
       <button class="flex items-center gap-1 text-gray-600 hover:text-blue-500">
-        comments: {{ post.comments.length }}
+        COMMENTS: {{ post.comments.length }}
       </button>
     </div>
   </div>
   } @empty {
-  <div class="text-center py-8 text-gray-500">Not any feed yet. start by following someone</div>
+  <div class="text-center py-8 text-gray-500">No posts yet. Start following someone!</div>
   }
-
   }
 </div>

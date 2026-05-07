@@ -20,6 +20,8 @@ export class Feed implements OnInit, OnDestroy {
   loading = signal(false);
   error = signal<string | null>(null);
 
+  currentUserId = this.authService.getUserId();
+
   private feedSubscription?: Subscription;
 
   ngOnInit() {

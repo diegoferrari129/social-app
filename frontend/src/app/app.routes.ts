@@ -5,6 +5,7 @@ import { Feed } from './features/post/components/feed/feed';
 import { CreatePostForm } from './features/post/components/create-post-form/create-post-form';
 import { PostDetail } from './features/post/components/post-detail/post-detail';
 import { PostEdit } from './features/post/components/post-edit/post-edit';
+import { UserPostList } from './features/post/components/user-post-list/user-post-list';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -13,5 +14,6 @@ export const routes: Routes = [
   { path: 'feed', component: Feed },
   { path: 'create-post', component: CreatePostForm },
   { path: 'post/:id', component: PostDetail },
-  { path: 'post/edit/:id', component: PostEdit }
+  { path: 'post/edit/:id', component: PostEdit },
+  { path: 'user/:userId/posts', component: UserPostList },
 ];
