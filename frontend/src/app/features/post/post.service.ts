@@ -17,6 +17,10 @@ export class PostService {
   createPost(postData: { title: string; content: string; postImg?: string }): Observable<Post> {
     return this.http.post<Post>(`${this.apiUrl}/post/create`, postData);
   }
+
+  toggleLike(postId: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/post/${postId}/like`, {});
+  }
 }
 
 
