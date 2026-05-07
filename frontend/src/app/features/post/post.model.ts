@@ -1,4 +1,4 @@
-export interface Comment {
+export interface PostComment {
   id: string;
   userId: string;
   userName: string;
@@ -14,6 +14,6 @@ export interface Post {
   userId: string;
   userName: string;
   likes: string[];
-  comments: Comment[];
+  comments: PostComment[];
   createdAt: string;
 }

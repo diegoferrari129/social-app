@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Post } from './post.model';
+import { Post, PostComment } from './post.model';
 
 @Injectable({
   providedIn: 'root',
@@ -18,8 +18,16 @@ export class PostService {
     return this.http.post<Post>(`${this.apiUrl}/post/create`, postData);
   }
 
+  getPostById(id: string): Observable<Post> {
+    return this.http.get<Post>(`${this.apiUrl}/post/${id}`);
+  }
+
   toggleLike(postId: string): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/post/${postId}/like`, {});
+  }
+
+  addComment(postId: string, text: string): Observable<PostComment> {
+    return this.http.post<PostComment>(`${this.apiUrl}/post/${postId}/comment`, { text });
   }
 }
 

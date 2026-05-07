@@ -1,0 +1,45 @@
+<div class="max-w-2xl mx-auto p-4">
+  @if (loading) {
+  <div class="text-center py-8">Loading...</div>
+  } @else if (error) {
+  <div class="text-red-500 text-center py-8">{{ error }}</div>
+  } @else if (post) {
+  <div class="bg-white rounded-lg shadow p-4 mb-6">
+    <div class="flex items-center mb-3">
+      <div class="font-semibold">{{ post.userName }}</div>
+      <div class="text-xs text-gray-500 ml-2">{{ post.createdAt | date:'dd/MM/yyyy HH:mm' }}</div>
+    </div>
+    <h3 class="text-xl font-bold mb-2">{{ post.title }}</h3>
+    <p class="text-gray-700 mb-3">{{ post.content }}</p>
+    @if (post.postImg) {
+    <img [src]="post.postImg" class="w-full rounded mb-3" />
+    }
+    <div class="flex items-center gap-4">
+      <button (click)="onLike(post.id)" class="flex items-center gap-1 text-gray-600 hover:text-red-500">
+        likes: {{ post.likes.length }}
+      </button>
+      <button class="flex items-center gap-1 text-gray-600">
+        comments: {{ post.comments.length }}
+      </button>
+    </div>
+  </div>
+
+  <div class="bg-gray-50 rounded-lg p-4">
+    <h4 class="font-bold mb-3">Comments</h4>
+    <div class="mb-4">
+      <textarea [(ngModel)]="commentText" rows="2" class="w-full border rounded p-2"
+        placeholder="Write a comment..."></textarea>
+      <button (click)="addComment()" class="mt-2 bg-blue-500 text-white px-4 py-1 rounded">Submit</button>
+    </div>
+    @for (comment of post.comments; track comment.id) {
+    <div class="border-t pt-2 mt-2">
+      <div class="font-semibold text-sm">{{ comment.userName }}</div>
+      <div class="text-gray-700">{{ comment.text }}</div>
+      <div class="text-xs text-gray-400">{{ comment.createdAt | date:'dd/MM/yyyy HH:mm' }}</div>
+    </div>
+    } @empty {
+    <div class="text-gray-500 text-center">No comments yet. Be the first!</div>
+    }
+  </div>
+  }
+</div>
