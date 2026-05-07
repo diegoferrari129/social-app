@@ -41,5 +41,11 @@
     <div class="text-gray-500 text-center">No comments yet. Be the first!</div>
     }
   </div>
+  @if (isOwner) {
+  <div class="mt-4 flex gap-2">
+    <a [routerLink]="['/post/edit', post.id]" class="text-blue-500 hover:underline">Edit</a>
+    <button (click)="deletePost()" class="text-red-500 hover:underline">Delete</button>
+  </div>
+  }
   }
 </div>

@@ -1,7 +1,7 @@
 
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { PostService } from '../../post.service';
@@ -18,6 +18,7 @@ export class PostDetail implements OnInit, OnDestroy {
   private postService = inject(PostService);
   private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
+  private router = inject(Router);
 
   post: Post | null = null;
   loading = false;
@@ -81,6 +82,21 @@ export class PostDetail implements OnInit, OnDestroy {
         this.commentText = '';
       },
       error: (err: any) => console.error(err)
+    });
+  }
+
+  get isOwner(): boolean {
+    if (!this.post) return false;
+    const currentUserId = this.authService.getUserId();
+    return this.post.userId === currentUserId;
+  }
+
+  deletePost(): void {
+    if (!this.post) return;
+    if (!confirm('Delete this post?')) return;
+    this.postService.deletePost(this.post.id).subscribe({
+      next: () => this.router.navigate(['/feed']),
+      error: (err) => console.error(err)
     });
   }
 
