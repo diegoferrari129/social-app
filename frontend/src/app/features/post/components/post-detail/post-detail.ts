@@ -1,3 +1,4 @@
+
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -5,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { PostService } from '../../post.service';
 import { Post, PostComment } from '../../post.model';
+import { AuthService } from '../../../../core/auth/auth.service';
 
 @Component({
   selector: 'app-post-detail',
@@ -15,6 +17,7 @@ import { Post, PostComment } from '../../post.model';
 export class PostDetail implements OnInit, OnDestroy {
   private postService = inject(PostService);
   private route = inject(ActivatedRoute);
+  private authService = inject(AuthService);
 
   post: Post | null = null;
   loading = false;
@@ -47,11 +50,25 @@ export class PostDetail implements OnInit, OnDestroy {
   }
 
   onLike(postId: string): void {
+    if (!this.post) return;
+    const userId = this.authService.getUserId();
+    if (!userId) return;
+
+    const alreadyLiked = this.post.likes.includes(userId);
+    const updatedLikes = alreadyLiked
+      ? this.post.likes.filter(id => id !== userId)
+      : [...this.post.likes, userId];
+
+    this.post = { ...this.post, likes: updatedLikes };
+
     this.postService.toggleLike(postId).subscribe({
-      next: () => {
-        if (this.post) this.loadPost(this.post.id);
-      },
-      error: (err: any) => console.error(err)
+      error: (err: any) => {
+        console.error('Errore nel like', err);
+        const rollbackLikes = alreadyLiked
+          ? [...this.post!.likes, userId]
+          : this.post!.likes.filter(id => id !== userId);
+        this.post = { ...this.post!, likes: rollbackLikes };
+      }
     });
   }
 
