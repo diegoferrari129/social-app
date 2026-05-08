@@ -10,6 +10,9 @@ export interface UserProfile {
   imgUrl: string;
   followers: string[];
   following: string[];
+  followersCount: number;
+  followingCount?: number;
+  isFollowed?: boolean;
 }
 
 @Injectable({
@@ -26,5 +29,9 @@ export class UserService {
 
   updateUserProfile(userId: string, data: { name: string; bio: string; imgUrl: string }): Observable<any> {
     return this.http.patch(`${this.apiUrl}/user/update/${userId}`, data);
+  }
+
+  followUser(targetUserId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/user/follow/${targetUserId}`, {});
   }
 }

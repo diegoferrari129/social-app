@@ -227,6 +227,14 @@ namespace api.Controllers
             if (user == null)
                 return NotFound(new { message = "User not found" });
 
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            bool isFollowed = false;
+            if (currentUserId != null && currentUserId != id)
+            {
+                var currentUser = await _userService.GetByIdAsync(currentUserId);
+                isFollowed = currentUser?.Following?.Contains(id) ?? false;
+            }
+
             return Ok(new
             {
                 user.Id,
@@ -237,7 +245,8 @@ namespace api.Controllers
                 Followers = user.Followers ?? new List<string>(),
                 Following = user.Following ?? new List<string>(),
                 FollowersCount = user.Followers?.Count ?? 0,
-                FollowingCount = user.Following?.Count ?? 0
+                FollowingCount = user.Following?.Count ?? 0,
+                isFollowed
             });
         }
 

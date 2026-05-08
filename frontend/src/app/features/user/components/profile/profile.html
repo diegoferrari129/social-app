@@ -50,7 +50,13 @@
     }
 
     <div class="mt-6 flex gap-6">
+
       <div>
+        @if (!isOwnProfile) {
+        <app-follow-button [targetUserId]="user.id" [isFollowing]="isFollowing"
+          (followChanged)="onFollowChanged($event)">
+        </app-follow-button>
+        }
         <span class="font-bold">{{ user.followers.length }}</span> followers
       </div>
       <div>

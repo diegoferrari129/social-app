@@ -5,11 +5,12 @@ import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { UserService, UserProfile } from '../../user.service';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { FollowButton } from '../../../../shared/components/follow-button/follow-button';
 
 
 @Component({
   selector: 'app-profile',
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, FollowButton],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
@@ -20,6 +21,7 @@ export class Profile implements OnInit, OnDestroy {
   editMode = false;
   editForm = { name: '', bio: '', imgUrl: '' };
   saving = false;
+  isFollowing = false;
 
   private sub?: Subscription;
   private routeSub?: Subscription;
@@ -47,6 +49,7 @@ export class Profile implements OnInit, OnDestroy {
     this.sub = this.userService.getUserProfile(userId).subscribe({
       next: (data) => {
         this.user = data;
+        this.isFollowing = data.isFollowed || false;
         this.editForm = {
           name: data.name,
           bio: data.bio,
@@ -60,6 +63,13 @@ export class Profile implements OnInit, OnDestroy {
         console.error(err);
       }
     });
+  }
+  onFollowChanged(newState: boolean): void {
+    this.isFollowing = newState;
+    // Aggiorna il contatore follower localmente (opzionale)
+    if (this.user) {
+      this.user.followersCount += newState ? 1 : -1;
+    }
   }
 
   get isOwnProfile(): boolean {
@@ -100,6 +110,8 @@ export class Profile implements OnInit, OnDestroy {
       }
     });
   }
+
+
 
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
