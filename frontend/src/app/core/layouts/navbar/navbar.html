@@ -1,14 +1,41 @@
 <header class="bg-white shadow-md">
   <div class="container mx-auto px-4 py-3 flex justify-between items-center">
 
-    <a routerLink="/" class="text-xl font-bold text-blue-600">
-      SocialApp
-    </a>
+    <a routerLink="/" class="text-xl font-bold text-blue-600">SocialApp</a>
 
+    @if (!isAuthenticated) {
     <div class="space-x-4">
       <a routerLink="/login" class="text-gray-600 hover:text-blue-500">Login</a>
       <a routerLink="/register" class="text-gray-600 hover:text-blue-500">Register</a>
     </div>
+    } @else {
+    <div class="flex items-center space-x-4">
+      <a routerLink="/create-post" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+        New Post
+      </a>
+      <div class="relative">
+        <button (click)="toggleMenu()" class="flex items-center space-x-2 focus:outline-none">
+          <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
+            {{ userName.charAt(0).toUpperCase() }}
+          </div>
+          <span class="text-gray-700">{{ userName }}</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+        @if (menuOpen) {
+        <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+          <a [routerLink]="['/profile', currentUserId]" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+            My Profile
+          </a>
+          <button (click)="logout()" class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
+            Logout
+          </button>
+        </div>
+        }
+      </div>
+    </div>
+    }
 
   </div>
 </header>

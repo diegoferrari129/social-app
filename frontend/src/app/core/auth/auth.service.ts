@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 export interface LoginResponse {
@@ -13,6 +13,8 @@ export interface LoginResponse {
 })
 export class AuthService {
   private apiUrl = '/api';
+  private authState = new BehaviorSubject<boolean>(this.isAuthenticated());
+  authState$ = this.authState.asObservable();
 
   constructor(private http: HttpClient) { }
 
@@ -21,11 +23,12 @@ export class AuthService {
       .pipe(
         tap(response => {
           this.saveToken(response.token);
-          localStorage.setItem('userId', response.user.id);
+          if (response.user?.id) localStorage.setItem('userId', response.user.id);
+          if (response.user?.name) localStorage.setItem('userName', response.user.name);
+          this.authState.next(true);
         })
       );
   }
-
   saveToken(token: string): void {
     localStorage.setItem('token', token);
   }
@@ -38,9 +41,15 @@ export class AuthService {
     return localStorage.getItem('userId');
   }
 
+  getUserName(): string | null {
+    return localStorage.getItem('userName');
+  }
+
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+    this.authState.next(false);
   }
 
   isAuthenticated(): boolean {

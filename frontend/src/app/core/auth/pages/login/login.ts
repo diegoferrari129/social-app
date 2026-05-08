@@ -22,10 +22,8 @@ export class Login {
       next: (res) => {
         this.authService.saveToken(res.token);
         localStorage.setItem('userId', res.user.id);
+        localStorage.setItem('userName', res.user.name);
         this.router.navigate(['/feed']);
-      },
-      error: () => {
-        this.errorMessage = 'Email o password errati';
       }
     });
   }
