@@ -100,6 +100,21 @@ export class PostDetail implements OnInit, OnDestroy {
     });
   }
 
+  removeComment(commentId: string): void {
+    if (!this.post) return;
+    if (!confirm('Are you sure you want to delete this comment?')) return;
+
+    this.postService.deleteComment(this.post.id, commentId).subscribe({
+      next: () => {
+        this.post!.comments = this.post!.comments.filter(c => c.id !== commentId);
+      },
+      error: (err) => {
+        console.error('Failed to delete comment', err);
+        alert('Could not delete comment');
+      }
+    });
+  }
+
   ngOnDestroy(): void {
     this.subscription?.unsubscribe();
     this.routeSub?.unsubscribe();

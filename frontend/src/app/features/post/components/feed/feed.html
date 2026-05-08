@@ -4,7 +4,7 @@
   } @else if (error()) {
   <div class="text-red-500 text-center py-8">{{ error() }}</div>
   } @else {
-  <!-- Intestazione con pulsante Nuovo Post e link ai miei post -->
+
   <div class="flex justify-between items-center mb-4">
     <a [routerLink]="['/user', currentUserId, 'posts']" class="text-blue-500 hover:underline">
       My posts
@@ -14,7 +14,7 @@
     </a>
   </div>
 
-  <!-- Lista dei post del feed -->
+
   @for (post of posts(); track post.id) {
   <div class="bg-white rounded-lg shadow mb-6 p-4">
     <div class="flex items-center mb-3">

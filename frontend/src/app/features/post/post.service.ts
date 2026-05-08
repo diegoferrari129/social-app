@@ -41,6 +41,10 @@ export class PostService {
   deletePost(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/post/${id}`);
   }
+
+  deleteComment(postId: string, commentId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/post/${postId}/comment/${commentId}`);
+  }
 }
 
 

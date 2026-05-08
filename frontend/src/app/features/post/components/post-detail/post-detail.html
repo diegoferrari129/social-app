@@ -37,6 +37,9 @@
       <div class="text-gray-700">{{ comment.text }}</div>
       <div class="text-xs text-gray-400">{{ comment.createdAt | date:'dd/MM/yyyy HH:mm' }}</div>
     </div>
+    <button (click)="removeComment(comment.id)" class="text-red-500 text-sm hover:underline">
+      Delete
+    </button>
     } @empty {
     <div class="text-gray-500 text-center">No comments yet. Be the first!</div>
     }
@@ -47,5 +50,6 @@
     <button (click)="deletePost()" class="text-red-500 hover:underline">Delete</button>
   </div>
   }
+
   }
 </div>
