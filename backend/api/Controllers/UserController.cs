@@ -220,6 +220,27 @@ namespace api.Controllers
             return NoContent();
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserById(string id)
+        {
+            var user = await _userService.GetByIdAsync(id);
+            if (user == null)
+                return NotFound(new { message = "User not found" });
+
+            return Ok(new
+            {
+                user.Id,
+                user.Name,
+                user.Email,
+                user.Bio,
+                user.ImgUrl,
+                Followers = user.Followers ?? new List<string>(),
+                Following = user.Following ?? new List<string>(),
+                FollowersCount = user.Followers?.Count ?? 0,
+                FollowingCount = user.Following?.Count ?? 0
+            });
+        }
+
         private string GenerateJwtToken(User user)
         {
             var jwtSecret = _configuration["JwtSecrets:Secret"]

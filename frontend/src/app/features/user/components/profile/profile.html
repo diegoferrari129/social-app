@@ -1,0 +1,62 @@
+<div class="max-w-2xl mx-auto p-4">
+  @if (loading) {
+  <div class="text-center py-8">Loading profile...</div>
+  } @else if (error) {
+  <div class="text-red-500 text-center py-8">{{ error }}</div>
+  } @else if (user) {
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-start justify-between">
+      <div class="flex items-center gap-4">
+        <img [src]="user.imgUrl || '/default-avatar.png'" class="w-20 h-20 rounded-full object-cover" alt="avatar">
+        <div>
+          <h2 class="text-2xl font-bold">{{ user.name }}</h2>
+          <p class="text-gray-600">{{ user.email }}</p>
+        </div>
+      </div>
+      @if (isOwnProfile && !editMode) {
+      <button (click)="toggleEdit()" class="text-blue-500 hover:underline">Edit Profile</button>
+      }
+    </div>
+
+    @if (editMode) {
+    <div class="mt-6 border-t pt-4">
+      <h3 class="font-bold mb-2">Edit profile</h3>
+      <form (ngSubmit)="saveProfile()">
+        <div class="mb-3">
+          <label class="block text-sm font-medium">Name</label>
+          <input type="text" [(ngModel)]="editForm.name" name="name" class="w-full border rounded p-2" required>
+        </div>
+        <div class="mb-3">
+          <label class="block text-sm font-medium">Bio</label>
+          <textarea [(ngModel)]="editForm.bio" name="bio" rows="3" class="w-full border rounded p-2"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="block text-sm font-medium">Image URL</label>
+          <input type="text" [(ngModel)]="editForm.imgUrl" name="imgUrl" class="w-full border rounded p-2">
+        </div>
+        <div class="flex gap-2">
+          <button type="submit" [disabled]="saving" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+            {{ saving ? 'Saving...' : 'Save' }}
+          </button>
+          <button type="button" (click)="toggleEdit()" class="bg-gray-300 px-4 py-2 rounded">Cancel</button>
+        </div>
+      </form>
+    </div>
+    } @else {
+    <div class="mt-6 border-t pt-4">
+      <h3 class="font-bold">Bio</h3>
+      <p class="text-gray-700">{{ user.bio || 'No bio yet.' }}</p>
+    </div>
+    }
+
+    <div class="mt-6 flex gap-6">
+      <div>
+        <span class="font-bold">{{ user.followers.length }}</span> followers
+      </div>
+      <div>
+        <span class="font-bold">{{ user.following.length }}</span> following
+      </div>
+    </div>
+  </div>
+  }
+</div>

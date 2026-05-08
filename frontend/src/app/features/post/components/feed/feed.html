@@ -18,7 +18,9 @@
   @for (post of posts(); track post.id) {
   <div class="bg-white rounded-lg shadow mb-6 p-4">
     <div class="flex items-center mb-3">
-      <div class="font-semibold">{{ post.userName }}</div>
+      <a [routerLink]="['/profile', post.userId]" class="font-semibold hover:underline">
+        {{ post.userName }}
+      </a>
       <div class="text-xs text-gray-500 ml-2">{{ post.createdAt | date:'dd/MM/yyyy HH:mm' }}</div>
       @if (post.userId === currentUserId) {
       <a [routerLink]="['/post/edit', post.id]" class="text-blue-500 text-sm ml-4">Edit</a>
