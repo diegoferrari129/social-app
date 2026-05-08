@@ -64,9 +64,9 @@ export class Profile implements OnInit, OnDestroy {
       }
     });
   }
+
   onFollowChanged(newState: boolean): void {
     this.isFollowing = newState;
-    // Aggiorna il contatore follower localmente (opzionale)
     if (this.user) {
       this.user.followersCount += newState ? 1 : -1;
     }
@@ -110,8 +110,6 @@ export class Profile implements OnInit, OnDestroy {
       }
     });
   }
-
-
 
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
