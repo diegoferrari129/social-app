@@ -7,6 +7,7 @@ import { PostDetail } from './features/post/components/post-detail/post-detail';
 import { PostEdit } from './features/post/components/post-edit/post-edit';
 import { UserPostList } from './features/post/components/user-post-list/user-post-list';
 import { Profile } from './features/user/components/profile/profile';
+import { Register } from './core/auth/pages/register/register';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -17,5 +18,6 @@ export const routes: Routes = [
   { path: 'post/:id', component: PostDetail },
   { path: 'post/edit/:id', component: PostEdit },
   { path: 'user/:userId/posts', component: UserPostList },
-  { path: 'profile/:id', component: Profile }
+  { path: 'profile/:id', component: Profile },
+  { path: 'register', component: Register }
 ];

@@ -45,6 +45,19 @@ export class AuthService {
     return localStorage.getItem('userName');
   }
 
+  register(firstName: string, lastName: string, email: string, password: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/user/create`, {
+      firstName,
+      lastName,
+      email,
+      password
+    });
+  }
+
+  updateAuthState(isAuthenticated: boolean): void {
+    this.authState.next(isAuthenticated);
+  }
+
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
