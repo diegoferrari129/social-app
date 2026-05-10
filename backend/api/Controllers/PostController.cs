@@ -1,8 +1,10 @@
 ﻿using api.DTOs.PostDTOs;
+using api.Hubs;
 using api.Models;
 using api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 
 namespace api.Controllers
@@ -16,13 +18,15 @@ namespace api.Controllers
         private readonly UserService _userService;
         private readonly ILogger<PostController> _logger;
         private readonly NotificationService _notificationService;
+        private readonly IHubContext<NotificationsHub> _notificationsHub;
 
-        public PostController(PostService postService, UserService userService, ILogger<PostController> logger, NotificationService notificationService)
+        public PostController(PostService postService, UserService userService, ILogger<PostController> logger, NotificationService notificationService, IHubContext<NotificationsHub> notificationsHub)
         {
             _postService = postService;
             _userService = userService;
             _logger = logger;
             _notificationService = notificationService;
+            _notificationsHub = notificationsHub;
         }
 
         [HttpGet("feed")]
@@ -167,6 +171,15 @@ namespace api.Controllers
                     IsRead = false
                 };
                 await _notificationService.CreateAsync(notification);
+
+                await _notificationsHub.Clients.Group($"notifications-{post.UserId}").SendAsync("NewNotification", new
+                {
+                    type = "like",
+                    fromUserId = userId,
+                    fromUserName = currentUser?.Name,
+                    postId = id,
+                    timestamp = DateTime.UtcNow
+                });
             }
             return Ok(new { success = true });
         }
@@ -204,6 +217,16 @@ namespace api.Controllers
                     IsRead = false
                 };
                 await _notificationService.CreateAsync(notification);
+
+                await _notificationsHub.Clients.Group($"notifications-{post.UserId}").SendAsync("NewNotification", new
+                {
+                    type = "comment",
+                    fromUserId = userId,
+                    fromUserName = userName,
+                    postId = id,
+                    commentText = request.Text.Length > 50 ? request.Text[..50] + "..." : request.Text,
+                    timestamp = DateTime.UtcNow
+                });
             }
 
             return Ok(comment);

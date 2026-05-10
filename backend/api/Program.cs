@@ -1,4 +1,5 @@
 using api.Filters;
+using api.Hubs;
 using api.Models;
 using api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -27,6 +28,8 @@ builder.Services.AddSingleton<UserService>();
 builder.Services.AddSingleton<PostService>();
 builder.Services.AddSingleton<ChatService>();
 builder.Services.AddSingleton<NotificationService>();
+
+builder.Services.AddSignalR();
 
 builder.Services.AddOpenApi();
 
@@ -74,6 +77,8 @@ var app = builder.Build();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapHub<ChatHub>("/chatHub");
+app.MapHub<NotificationsHub>("/notificationsHub");
 app.UseCors("AllowClient");
 app.MapControllers();
 

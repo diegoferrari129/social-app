@@ -1,8 +1,10 @@
 ﻿using api.DTOs.UserDTOs;
+using api.Hubs;
 using api.Models;
 using api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -18,12 +20,14 @@ namespace api.Controllers
         private readonly ILogger<UserController> _logger;
         private readonly IConfiguration _configuration;
         private readonly NotificationService _notificationService;
-        public UserController(UserService userService, ILogger<UserController> logger, IConfiguration configuration, NotificationService notificationService)
+        private readonly IHubContext<NotificationsHub> _notificationsHub;
+        public UserController(UserService userService, ILogger<UserController> logger, IConfiguration configuration, NotificationService notificationService, IHubContext<NotificationsHub> notificationsHub)
         {
             _userService = userService;
             _logger = logger;
             _configuration = configuration;
             _notificationService = notificationService;
+            _notificationsHub = notificationsHub;
         }
 
         [HttpPost("create")]
@@ -164,6 +168,14 @@ namespace api.Controllers
                 };
 
                 await _notificationService.CreateAsync(notification);
+
+                await _notificationsHub.Clients.Group($"notifications-{targetId}").SendAsync("NewNotification", new
+                {
+                    type = "follow",
+                    fromUserId = currentUserId,
+                    fromUserName = currentUser.Name,
+                    timestamp = DateTime.UtcNow
+                });
             }
 
             await _userService.UpdateAsync(currentUserId, currentUser);
