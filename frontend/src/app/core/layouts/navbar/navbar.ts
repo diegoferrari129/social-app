@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../auth/auth.service';
 import { Subscription } from 'rxjs';
+import { SignalRService } from '../../signalr/signalr.service';
 
 @Component({
   selector: 'app-navbar',
@@ -15,9 +16,14 @@ export class Navbar implements OnInit, OnDestroy {
   userName = '';
   menuOpen = false;
   currentUserId: string | null = null;
-  private authSubscription?: Subscription;
+  unreadCount = 0;
 
-  constructor(private authService: AuthService, private router: Router) { }
+  private authSubscription?: Subscription;
+  private notificationSub?: Subscription;
+
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private signalR = inject(SignalRService);
 
   ngOnInit(): void {
     this.isAuthenticated = this.authService.isAuthenticated();
@@ -28,6 +34,11 @@ export class Navbar implements OnInit, OnDestroy {
     this.authSubscription = this.authService.authState$.subscribe(isAuth => {
       this.isAuthenticated = isAuth;
       if (isAuth) this.loadUserInfo();
+    });
+
+    this.notificationSub = this.signalR.notification$.subscribe(notification => {
+      this.unreadCount++;
+      console.log(`Nuova notifica: ${notification.fromUserName} ${notification.type}`);
     });
   }
 
@@ -47,5 +58,6 @@ export class Navbar implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.authSubscription?.unsubscribe();
+    this.notificationSub?.unsubscribe();
   }
 }

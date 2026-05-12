@@ -1,8 +1,15 @@
 {
-  "/api": {
+  "/api": { "target": "https://localhost:7022", "secure": false, "changeOrigin": true },
+  "/chatHub": {
     "target": "https://localhost:7022",
+    "ws": true,
     "secure": false,
-    "changeOrigin": true,
-    "logLevel": "debug"
+    "changeOrigin": true
+  },
+  "/notificationsHub": {
+    "target": "https://localhost:7022",
+    "ws": true,
+    "secure": false,
+    "changeOrigin": true
   }
 }
