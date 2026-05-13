@@ -101,5 +101,28 @@ namespace api.Controllers
             await _chatService.MarkMessagesAsReadAsync(conversationId, userId);
             return Ok();
         }
+
+        [HttpPost("start/{otherUserId}")]
+        public async Task<IActionResult> StartConversation(string otherUserId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var chatId = await _chatService.GetOrCreateChatAsync(userId, otherUserId);
+            var chat = await _chatService.GetChatByIdAsync(chatId);
+            if (chat == null) return NotFound();
+
+            var otherParticipant = chat.Participants.First(p => p != userId);
+            var otherUser = await _userService.GetByIdAsync(otherParticipant);
+
+            return Ok(new ChatResponseDto
+            {
+                Id = chat.Id!,
+                OtherUserId = otherParticipant,
+                OtherUserName = otherUser?.Name ?? "Unknown",
+                LastMessage = chat.LastMessage,
+                LastMessageTime = chat.LastMessageTime
+            });
+        }
     }
 }

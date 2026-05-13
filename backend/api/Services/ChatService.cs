@@ -95,5 +95,10 @@ namespace api.Services
             var update = Builders<Message>.Update.Set(m => m.IsRead, true);
             await _messagesCollection.UpdateManyAsync(filter, update);
         }
+
+        public async Task<Chat> GetChatByIdAsync(string chatId)
+        {
+            return await _conversationsCollection.Find(c => c.Id == chatId).FirstOrDefaultAsync();
+        }
     }
 }
