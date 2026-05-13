@@ -5,6 +5,8 @@ import { AuthService } from '../../auth/auth.service';
 import { Subscription } from 'rxjs';
 import { SignalRService } from '../../signalr/signalr.service';
 
+import { HttpClient } from '@angular/common/http';
+
 @Component({
   selector: 'app-navbar',
   imports: [CommonModule, RouterModule],
@@ -24,6 +26,8 @@ export class Navbar implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private router = inject(Router);
   private signalR = inject(SignalRService);
+
+  private http = inject(HttpClient);
 
   ngOnInit(): void {
     this.isAuthenticated = this.authService.isAuthenticated();
@@ -54,6 +58,17 @@ export class Navbar implements OnInit, OnDestroy {
 
   toggleMenu() {
     this.menuOpen = !this.menuOpen;
+  }
+
+  markNotificationsAsRead(): void {
+    this.http.post('/api/notification/mark-all-read', {}).subscribe({
+      next: () => {
+        this.unreadCount = 0;
+      },
+      error: (err: any) => {
+        console.error('Error on mark as read', err);
+      }
+    });
   }
 
   ngOnDestroy(): void {

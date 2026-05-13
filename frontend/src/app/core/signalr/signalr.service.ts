@@ -71,4 +71,6 @@ export class SignalRService {
       console.error('ChatHub not connected');
     }
   }
+
+
 }

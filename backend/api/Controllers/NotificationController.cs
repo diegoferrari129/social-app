@@ -36,7 +36,7 @@ namespace api.Controllers
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
-            await _notificationService.MarkAsReadAsync(id);
+            await _notificationService.MarkAllAsReadAsync(id);
 
             return Ok(new { success = true });
         }
