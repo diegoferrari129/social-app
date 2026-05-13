@@ -53,9 +53,14 @@
 
       <div>
         @if (!isOwnProfile) {
-        <app-follow-button [targetUserId]="user.id" [isFollowing]="isFollowing"
-          (followChanged)="onFollowChanged($event)">
-        </app-follow-button>
+        <div class="flex gap-2 mt-4">
+          <app-follow-button [targetUserId]="user.id" [isFollowing]="isFollowing"
+            (followChanged)="onFollowChanged($event)">
+          </app-follow-button>
+          <a [routerLink]="['/chat', user.id]" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+            Messaggio
+          </a>
+        </div>
         }
         <span class="font-bold">{{ user.followers.length }}</span> followers
       </div>

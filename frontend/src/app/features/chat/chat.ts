@@ -5,10 +5,11 @@ import { Subscription } from 'rxjs';
 import { ChatService, ChatPreview, Message } from '../chat/chat.service';
 import { SignalRService } from '../../core/signalr/signalr.service';
 import { AuthService } from '../../core/auth/auth.service';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-chat',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './chat.html',
   styleUrl: './chat.css',
 })
@@ -23,6 +24,7 @@ export class Chat implements OnInit, OnDestroy {
   private chatService = inject(ChatService);
   private signalR = inject(SignalRService);
   private auth = inject(AuthService);
+  private route = inject(ActivatedRoute);
 
 
   ngOnInit(): void {
@@ -39,6 +41,13 @@ export class Chat implements OnInit, OnDestroy {
         });
       }
       this.loadConversations();
+
+      this.route.params.subscribe(params => {
+        const userId = params['userId'];
+        if (userId) {
+          this.openChatWithUser(userId);
+        }
+      });
     }));
   }
 
@@ -79,6 +88,20 @@ export class Chat implements OnInit, OnDestroy {
   get currentUserId(): string | null {
     return this.auth.getUserId();
   }
+
+  openChatWithUser(userId: string): void {
+    this.chatService.getOrCreateConversation(userId).subscribe({
+      next: (chat) => {
+        const exists = this.conversations.some(c => c.id === chat.id);
+        if (!exists) {
+          this.conversations = [chat, ...this.conversations];
+        }
+        this.selectConversation(chat);
+      },
+      error: (err) => console.error(err)
+    });
+  }
+
 
   ngOnDestroy(): void {
     this.subs.forEach(sub => sub.unsubscribe());

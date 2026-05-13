@@ -21,5 +21,6 @@ export const routes: Routes = [
   { path: 'user/:userId/posts', component: UserPostList },
   { path: 'profile/:id', component: Profile },
   { path: 'register', component: Register },
-  { path: 'chat', component: Chat }
+  { path: 'chat', component: Chat },
+  { path: 'chat/:userId', component: Chat }
 ];
