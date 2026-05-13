@@ -38,7 +38,7 @@ export class SignalRService {
     if (!token) return;
 
     this.chatHubConnection = new signalR.HubConnectionBuilder()
-      .withUrl('/chatHub', { accessTokenFactory: () => token })
+      .withUrl('/chatHub', { accessTokenFactory: () => token, transport: signalR.HttpTransportType.LongPolling })
       .withAutomaticReconnect()
       .build();
 

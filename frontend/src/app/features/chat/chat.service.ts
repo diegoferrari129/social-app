@@ -26,7 +26,7 @@ export class ChatService {
   constructor(private http: HttpClient) { }
 
   getConversations(): Observable<ChatPreview[]> {
-    return this.http.get<ChatPreview[]>(`${this.apiUrl}/chat/conversations`);
+    return this.http.get<ChatPreview[]>(`${this.apiUrl}/chat/chats`);
   }
 
   getMessages(conversationId: string): Observable<Message[]> {
@@ -40,4 +40,9 @@ export class ChatService {
   getOrCreateConversation(otherUserId: string): Observable<ChatPreview> {
     return this.http.post<ChatPreview>(`${this.apiUrl}/chat/start/${otherUserId}`, {});
   }
+
+  sendMessage(toUserId: string, text: string): Observable<Message> {
+    return this.http.post<Message>(`${this.apiUrl}/chat/send`, { toUserId, text });
+  }
+
 }

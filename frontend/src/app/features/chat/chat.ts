@@ -19,6 +19,7 @@ export class Chat implements OnInit, OnDestroy {
   messages: Message[] = [];
   newMessageText = '';
   loading = false;
+  isSending = false;
   private subs: Subscription[] = [];
 
   private chatService = inject(ChatService);
@@ -29,6 +30,7 @@ export class Chat implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadConversations();
+
     this.subs.push(this.signalR.message$.subscribe(msg => {
       if (this.selectedConversation && msg.chatId === this.selectedConversation.id) {
         this.messages.push({
@@ -40,14 +42,24 @@ export class Chat implements OnInit, OnDestroy {
           isRead: false
         });
       }
-      this.loadConversations();
 
-      this.route.params.subscribe(params => {
-        const userId = params['userId'];
-        if (userId) {
-          this.openChatWithUser(userId);
-        }
-      });
+      this.loadConversations();
+    }));
+
+
+    this.subs.push(this.route.params.subscribe(params => {
+      const userId = params['userId'];
+      if (userId) {
+
+        setTimeout(() => {
+          const existing = this.conversations.find(c => c.otherUserId === userId);
+          if (existing) {
+            this.selectConversation(existing);
+          } else {
+            this.openChatWithUser(userId);
+          }
+        }, 300);
+      }
     }));
   }
 
@@ -66,6 +78,7 @@ export class Chat implements OnInit, OnDestroy {
   }
 
   selectConversation(conv: ChatPreview): void {
+    if (this.selectedConversation?.id === conv.id) return;
     this.selectedConversation = conv;
     this.loadMessages(conv.id);
     this.chatService.markMessagesAsRead(conv.id).subscribe();
@@ -79,10 +92,14 @@ export class Chat implements OnInit, OnDestroy {
   }
 
   sendMessage(): void {
-    if (!this.newMessageText.trim() || !this.selectedConversation) return;
+    if (!this.newMessageText.trim() || !this.selectedConversation || this.isSending) return;
+    this.isSending = true;
     this.signalR.sendMessage(this.selectedConversation.otherUserId, this.newMessageText)
-      .catch(err => console.error(err));
-    this.newMessageText = '';
+      .catch(err => console.error(err))
+      .finally(() => {
+        this.isSending = false;
+        this.newMessageText = '';
+      });
   }
 
   get currentUserId(): string | null {
@@ -92,10 +109,9 @@ export class Chat implements OnInit, OnDestroy {
   openChatWithUser(userId: string): void {
     this.chatService.getOrCreateConversation(userId).subscribe({
       next: (chat) => {
-        const exists = this.conversations.some(c => c.id === chat.id);
-        if (!exists) {
-          this.conversations = [chat, ...this.conversations];
-        }
+
+        this.conversations = this.conversations.filter(c => c.id !== chat.id);
+        this.conversations = [chat, ...this.conversations];
         this.selectConversation(chat);
       },
       error: (err) => console.error(err)

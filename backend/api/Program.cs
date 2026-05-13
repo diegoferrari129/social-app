@@ -70,16 +70,28 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = key,
             ClockSkew = TimeSpan.Zero
         };
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                if (!string.IsNullOrEmpty(accessToken))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 
 var app = builder.Build();
 
 app.UseHttpsRedirection();
+app.UseCors("AllowClient");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapHub<ChatHub>("/chatHub");
 app.MapHub<NotificationsHub>("/notificationsHub");
-app.UseCors("AllowClient");
 app.MapControllers();
 
 if (app.Environment.IsDevelopment())
@@ -105,6 +117,4 @@ finally
 {
     Log.CloseAndFlush();
 }
-
-app.Run();
 
