@@ -85,6 +85,15 @@ namespace api.Services
                 .ToListAsync();
         }
 
-        // todo: aggiungiere un counter per gli unread
+        public async Task MarkMessagesAsReadAsync(string conversationId, string userId)
+        {
+            var filter = Builders<Message>.Filter.And(
+                Builders<Message>.Filter.Eq(m => m.ChatId, conversationId),
+                Builders<Message>.Filter.Ne(m => m.SenderId, userId),
+                Builders<Message>.Filter.Eq(m => m.IsRead, false)
+            );
+            var update = Builders<Message>.Update.Set(m => m.IsRead, true);
+            await _messagesCollection.UpdateManyAsync(filter, update);
+        }
     }
 }

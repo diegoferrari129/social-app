@@ -92,6 +92,14 @@ namespace api.Controllers
             return Ok(result);
         }
 
-        // todo: aggiungiere un counter per gli unread
+        [HttpPost("messages/mark-read/{conversationId}")]
+        [Authorize]
+        public async Task<IActionResult> MarkMessagesAsRead(string conversationId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            await _chatService.MarkMessagesAsReadAsync(conversationId, userId);
+            return Ok();
+        }
     }
 }
