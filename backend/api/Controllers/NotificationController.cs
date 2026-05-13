@@ -40,5 +40,16 @@ namespace api.Controllers
 
             return Ok(new { success = true });
         }
+
+        [HttpPost("mark-all-read")]
+        [Authorize]
+        public async Task<IActionResult> MarkAllAsRead()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            await _notificationService.MarkAllAsReadAsync(userId);
+            return Ok();
+        }
     }
 }

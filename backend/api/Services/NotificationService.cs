@@ -28,11 +28,14 @@ namespace api.Services
                 .ToListAsync();
         }
 
-        public async Task MarkAsReadAsync(string notificationId)
+        public async Task MarkAllAsReadAsync(string userId)
         {
-            var filter = Builders<Notification>.Filter.Eq(n => n.Id, notificationId);
+            var filter = Builders<Notification>.Filter.And(
+                Builders<Notification>.Filter.Eq(n => n.UserId, userId),
+                Builders<Notification>.Filter.Eq(n => n.IsRead, false)
+            );
             var update = Builders<Notification>.Update.Set(n => n.IsRead, true);
-            await _notificationsCollection.UpdateOneAsync(filter, update);
+            await _notificationsCollection.UpdateManyAsync(filter, update);
         }
     }
 }
