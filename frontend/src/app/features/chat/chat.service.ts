@@ -32,4 +32,8 @@ export class ChatService {
   getMessages(conversationId: string): Observable<Message[]> {
     return this.http.get<Message[]>(`${this.apiUrl}/chat/messages/${conversationId}`);
   }
+
+  markMessagesAsRead(conversationId: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/chat/messages/mark-read/${conversationId}`, {});
+  }
 }

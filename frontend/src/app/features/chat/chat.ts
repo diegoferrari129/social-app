@@ -59,6 +59,7 @@ export class Chat implements OnInit, OnDestroy {
   selectConversation(conv: ChatPreview): void {
     this.selectedConversation = conv;
     this.loadMessages(conv.id);
+    this.chatService.markMessagesAsRead(conv.id).subscribe();
   }
 
   loadMessages(conversationId: string): void {
