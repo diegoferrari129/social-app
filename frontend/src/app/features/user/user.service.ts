@@ -15,6 +15,14 @@ export interface UserProfile {
   isFollowed?: boolean;
 }
 
+export interface SuggestedUser {
+  id: string;
+  name: string;
+  bio: string;
+  imgUrl: string;
+  followersCount: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -33,5 +41,9 @@ export class UserService {
 
   followUser(targetUserId: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/user/follow/${targetUserId}`, {});
+  }
+
+  getSuggestedUsers(limit: number = 10): Observable<SuggestedUser[]> {
+    return this.http.get<SuggestedUser[]>(`${this.apiUrl}/user/suggested?limit=${limit}`);
   }
 }

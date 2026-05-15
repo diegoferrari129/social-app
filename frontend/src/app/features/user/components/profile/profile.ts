@@ -7,11 +7,12 @@ import { UserService, UserProfile } from '../../user.service';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { FollowButton } from '../../../../shared/components/follow-button/follow-button';
 import { UserPostList } from '../../../post/components/user-post-list/user-post-list';
+import { SuggestedUsers } from '../suggested-users/suggested-users';
 
 
 @Component({
   selector: 'app-profile',
-  imports: [CommonModule, FormsModule, RouterModule, FollowButton, UserPostList],
+  imports: [CommonModule, FormsModule, RouterModule, FollowButton, UserPostList, SuggestedUsers],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })

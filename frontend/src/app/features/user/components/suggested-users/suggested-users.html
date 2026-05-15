@@ -1,0 +1,25 @@
+<div class="bg-white rounded-lg shadow p-4">
+  <h3 class="font-bold text-lg mb-3">Suggested for you</h3>
+  @if (loading) {
+  <div class="text-center py-2">Loading...</div>
+  } @else {
+  <div class="space-y-3">
+    @for (user of suggestedUsers; track user.id) {
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <img [src]="user.imgUrl || '/default-avatar.png'" class="w-8 h-8 rounded-full object-cover">
+        <div>
+          <a [routerLink]="['/profile', user.id]" class="font-medium hover:underline text-sm">
+            {{ user.name }}
+          </a>
+          <p class="text-xs text-gray-500">{{ user.followersCount }} followers</p>
+        </div>
+      </div>
+      <app-follow-button [targetUserId]="user.id" [isFollowing]="false"></app-follow-button>
+    </div>
+    } @empty {
+    <div class="text-gray-500 text-sm">No suggestions right now</div>
+    }
+  </div>
+  }
+</div>
