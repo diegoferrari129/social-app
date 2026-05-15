@@ -1,8 +1,10 @@
 ﻿using api.DTOs.ChatDTOs;
+using api.Hubs;
 using api.Models;
 using api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 
 namespace api.Controllers
@@ -16,13 +18,15 @@ namespace api.Controllers
         private readonly UserService _userService;
         private readonly ILogger<ChatController> _logger;
         private readonly NotificationService _notificationService;
+        private readonly IHubContext<NotificationsHub> _notificationsHub;
 
-        public ChatController(ChatService chatService, UserService userService, ILogger<ChatController> logger, NotificationService notificationService)
+        public ChatController(ChatService chatService, UserService userService, ILogger<ChatController> logger, NotificationService notificationService, IHubContext<NotificationsHub> notificationsHub)
         {
             _chatService = chatService;
             _userService = userService;
             _logger = logger;
             _notificationService = notificationService;
+            _notificationsHub = notificationsHub;
         }
 
         [HttpPost("send")]
@@ -48,6 +52,16 @@ namespace api.Controllers
                 IsRead = false
             };
             await _notificationService.CreateAsync(notification);
+
+            await _notificationsHub.Clients.Group($"notifications-{request.ToUserId}").SendAsync("NewNotification", new
+            {
+                type = "message",
+                fromUserId = senderId,
+                fromUserName = senderName,
+                chatId = chatId,
+                messageText = request.Text.Length > 50 ? request.Text.Substring(0, 50) + "..." : request.Text,
+                timestamp = DateTime.UtcNow
+            });
 
             _logger.LogInformation("Message sent from {Sender} to {To}", senderId, request.ToUserId);
             return Ok(message);
