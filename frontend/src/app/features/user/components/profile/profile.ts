@@ -8,11 +8,12 @@ import { AuthService } from '../../../../core/auth/auth.service';
 import { FollowButton } from '../../../../shared/components/follow-button/follow-button';
 import { UserPostList } from '../../../post/components/user-post-list/user-post-list';
 import { SuggestedUsers } from '../suggested-users/suggested-users';
+import { UserChatsSidebarComponent } from '../../../components/user-chats-sidebar/user-chats-sidebar';
 
 
 @Component({
   selector: 'app-profile',
-  imports: [CommonModule, FormsModule, RouterModule, FollowButton, UserPostList, SuggestedUsers],
+  imports: [CommonModule, FormsModule, RouterModule, FollowButton, UserPostList, SuggestedUsers, UserChatsSidebarComponent],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })

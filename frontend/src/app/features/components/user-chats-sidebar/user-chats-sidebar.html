@@ -1,0 +1,30 @@
+<div class="bg-white rounded-lg shadow p-4">
+  <h3 class="font-bold text-lg mb-3">Messaggi recenti</h3>
+  @if (loading) {
+  <div class="text-center py-2">Caricamento...</div>
+  } @else {
+  <div class="space-y-2 max-h-96 overflow-y-auto">
+    @for (conv of conversations; track conv.id) {
+    <a [routerLink]="['/chat', conv.otherUserId]"
+      class="block p-2 hover:bg-gray-50 rounded border-b border-gray-100 last:border-b-0">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
+          {{ conv.otherUserName.charAt(0).toUpperCase() }}
+        </div>
+        <div class="flex-1 overflow-hidden">
+          <div class="flex justify-between items-baseline">
+            <div class="font-medium text-sm truncate">{{ conv.otherUserName }}</div>
+            <div class="text-xs text-gray-400 ml-2 whitespace-nowrap">
+              {{ conv.lastMessageTime | date:'dd/MM/yy HH:mm' }}
+            </div>
+          </div>
+          <div class="text-xs text-gray-500 truncate">{{ conv.lastMessage }}</div>
+        </div>
+      </div>
+    </a>
+    } @empty {
+    <div class="text-gray-500 text-sm text-center">Nessuna conversazione</div>
+    }
+  </div>
+  }
+</div>

@@ -1,34 +1,40 @@
 <div class="container mx-auto px-4 py-8">
   <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+    <!-- Sidebar sinistra: utenti suggeriti -->
     <aside class="md:col-span-3">
       <app-suggested-users></app-suggested-users>
     </aside>
 
+    <!-- Colonna centrale: info profilo + post dell'utente -->
     <main class="md:col-span-6">
       @if (loading) {
-      <div>Caricamento...</div>
+      <div class="bg-white rounded-lg shadow p-6 text-center">Caricamento profilo...</div>
       } @else if (error) {
-      <div class="text-red-500">{{ error }}</div>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">{{ error }}</div>
       } @else if (user) {
+      <!-- informazioni utente -->
       <div class="bg-white rounded-lg shadow p-6 mb-6">
         <div class="flex items-start gap-4">
-          <img [src]="user.imgUrl || '/default-avatar.png'" class="w-24 h-24 rounded-full object-cover">
+          <img [src]="user.imgUrl || '/default-avatar.png'" class="w-24 h-24 rounded-full object-cover" alt="Avatar" />
           <div class="flex-1">
-            <div class="flex justify-between items-start">
+            <div class="flex justify-between items-start flex-wrap gap-2">
               <div>
                 <h2 class="text-2xl font-bold">{{ user.name }}</h2>
-                <p class="text-gray-600">{{ user.bio }}</p>
+                <p class="text-gray-600 mt-1">{{ user.bio }}</p>
               </div>
+              <!-- Bottone follow -->
               @if (!isOwnProfile) {
               <app-follow-button [targetUserId]="user.id" [isFollowing]="isFollowing"
-                (followChanged)="onFollowChanged($event)">
-              </app-follow-button>
+                (followChanged)="onFollowChanged($event)"></app-follow-button>
               }
               @if (isOwnProfile) {
-              <button (click)="toggleEdit()" class="bg-gray-200 px-3 py-1 rounded">Edit Profile</button>
+              <button (click)="toggleEdit()"
+                class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded text-sm font-medium">
+                Modifica profilo
+              </button>
               }
             </div>
-            <div class="flex gap-4 mt-2 text-sm">
+            <div class="flex gap-4 mt-3 text-sm text-gray-700">
               <span><strong>{{ user.followersCount || 0 }}</strong> follower</span>
               <span><strong>{{ user.followingCount || 0 }}</strong> following</span>
             </div>
@@ -36,11 +42,17 @@
         </div>
       </div>
 
-      <div class="mt-6">
+      <!-- Sezione post dell'utente -->
+      <div class="">
         <h3 class="text-xl font-bold mb-4">Post</h3>
         <app-user-post-list [userId]="user.id"></app-user-post-list>
       </div>
       }
     </main>
+
+    <!-- Sidebar destra: chat  -->
+    <aside class="md:col-span-3">
+      <app-user-chats-sidebar></app-user-chats-sidebar>
+    </aside>
   </div>
 </div>
