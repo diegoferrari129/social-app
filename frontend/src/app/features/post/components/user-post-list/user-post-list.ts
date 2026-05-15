@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -13,10 +13,10 @@ import { AuthService } from '../../../../core/auth/auth.service';
   styleUrl: './user-post-list.css',
 })
 export class UserPostList implements OnInit, OnDestroy {
+  @Input() userId!: string;
   posts: Post[] = [];
   loading = false;
   error = '';
-  userId = '';
   private sub?: Subscription;
   private routeSub?: Subscription;
 
@@ -27,10 +27,9 @@ export class UserPostList implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.routeSub = this.route.params.subscribe((params: any) => {
-      this.userId = params['userId'];
-      if (this.userId) this.loadPosts();
-    });
+    if (this.userId) {
+      this.loadPosts();
+    }
   }
 
   loadPosts(): void {
