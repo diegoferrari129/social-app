@@ -100,5 +100,15 @@ namespace api.Services
         {
             return await _conversationsCollection.Find(c => c.Id == chatId).FirstOrDefaultAsync();
         }
+
+        public async Task<int> GetUnreadCountForChatAsync(string chatId, string userId)
+        {
+            var filter = Builders<Message>.Filter.And(
+                Builders<Message>.Filter.Eq(m => m.ChatId, chatId),
+                Builders<Message>.Filter.Ne(m => m.SenderId, userId),
+                Builders<Message>.Filter.Eq(m => m.IsRead, false)
+            );
+            return (int)await _messagesCollection.CountDocumentsAsync(filter);
+        }
     }
 }

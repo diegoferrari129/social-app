@@ -7,5 +7,6 @@
         public string OtherUserId { get; set; } = null!;
         public string? LastMessage { get; set; }
         public DateTime LastMessageTime { get; set; }
+        public int UnreadCount { get; set; }
     }
 }

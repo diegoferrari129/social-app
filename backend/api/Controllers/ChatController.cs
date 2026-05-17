@@ -94,13 +94,15 @@ namespace api.Controllers
             {
                 var otherUserId = chat.Participants.First(p => p != userId);
                 var otherUser = await _userService.GetByIdAsync(otherUserId);
+                var unreadCount = await _chatService.GetUnreadCountForChatAsync(chat.Id, userId);
                 result.Add(new ChatResponseDto
                 {
                     Id = chat.Id!,
                     OtherUserId = otherUserId,
                     OtherUserName = otherUser?.Name ?? "Unknown",
                     LastMessage = chat.LastMessage,
-                    LastMessageTime = chat.LastMessageTime
+                    LastMessageTime = chat.LastMessageTime,
+                    UnreadCount = unreadCount
                 });
             }
             return Ok(result);
