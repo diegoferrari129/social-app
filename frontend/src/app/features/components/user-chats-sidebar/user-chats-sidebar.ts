@@ -19,21 +19,26 @@ export class UserChatsSidebarComponent implements OnInit {
   conversations: ChatPreview[] = [];
   loading = false;
   private messageSubscription?: Subscription;
+  private lastReceivedMsgId = '';
 
   ngOnInit(): void {
     this.loadConversations();
     this.messageSubscription = this.signalR.message$.subscribe(msg => {
       const currentUserId = this.auth.getUserId();
-      if (msg.fromUserId !== currentUserId) {
-        const conversation = this.conversations.find(c => c.otherUserId === msg.fromUserId);
-        if (conversation) {
-          conversation.unreadCount = (conversation.unreadCount || 0) + 1;
-          conversation.lastMessage = msg.message;
-          conversation.lastMessageTime = msg.timestamp;
-          this.conversations = [...this.conversations];
-        } else {
-          this.loadConversations();
-        }
+      if (msg.fromUserId === currentUserId) return;
+
+      const msgId = `${msg.fromUserId}_${msg.message}_${new Date(msg.timestamp).getTime()}`;
+      if (this.lastReceivedMsgId === msgId) return;
+      this.lastReceivedMsgId = msgId;
+
+      const conversation = this.conversations.find(c => c.otherUserId === msg.fromUserId);
+      if (conversation) {
+        conversation.unreadCount = (conversation.unreadCount || 0) + 1;
+        conversation.lastMessage = msg.message;
+        conversation.lastMessageTime = msg.timestamp;
+        this.conversations = [...this.conversations];
+      } else {
+        this.loadConversations();
       }
     });
   }
