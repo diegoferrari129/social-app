@@ -21,6 +21,7 @@ export class Chat implements OnInit, OnDestroy {
   loading = false;
   isSending = false;
   private subs: Subscription[] = [];
+  private lastReceivedMsgId = '';
 
   private chatService = inject(ChatService);
   private signalR = inject(SignalRService);
@@ -32,6 +33,10 @@ export class Chat implements OnInit, OnDestroy {
     this.loadConversations();
 
     this.subs.push(this.signalR.message$.subscribe(msg => {
+      const msgId = `${msg.fromUserId}_${msg.message}_${new Date(msg.timestamp).getTime()}`;
+      if (this.lastReceivedMsgId === msgId) return; // già ricevuto
+      this.lastReceivedMsgId = msgId;
+
       if (this.selectedConversation && msg.chatId === this.selectedConversation.id) {
         this.messages.push({
           id: '',
@@ -46,11 +51,9 @@ export class Chat implements OnInit, OnDestroy {
       this.loadConversations();
     }));
 
-
     this.subs.push(this.route.params.subscribe(params => {
       const userId = params['userId'];
       if (userId) {
-
         setTimeout(() => {
           const existing = this.conversations.find(c => c.otherUserId === userId);
           if (existing) {

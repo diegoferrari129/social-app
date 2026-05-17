@@ -39,8 +39,9 @@
       <div class="flex gap-2">
         <input type="text" [(ngModel)]="newMessageText" placeholder="Write a message..."
           class="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring">
-        <button (click)="sendMessage()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
-          Send
+        <button (click)="sendMessage()" [disabled]="isSending"
+          class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+          {{ isSending ? 'Sending...' : 'Send' }}
         </button>
       </div>
     </div>

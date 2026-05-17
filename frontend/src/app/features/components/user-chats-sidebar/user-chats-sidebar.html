@@ -1,15 +1,21 @@
 <div class="bg-white rounded-lg shadow p-4">
-  <h3 class="font-bold text-lg mb-3">Messaggi recenti</h3>
+  <h3 class="font-bold text-lg mb-3">Chat</h3>
   @if (loading) {
-  <div class="text-center py-2">Caricamento...</div>
+  <div class="text-center py-2">Loading...</div>
   } @else {
   <div class="space-y-2 max-h-96 overflow-y-auto">
     @for (conv of conversations; track conv.id) {
     <a [routerLink]="['/chat', conv.otherUserId]"
       class="block p-2 hover:bg-gray-50 rounded border-b border-gray-100 last:border-b-0">
       <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
+        <div class="relative w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
           {{ conv.otherUserName.charAt(0).toUpperCase() }}
+          @if (conv.unreadCount > 0) {
+          <span
+            class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+            {{ conv.unreadCount > 9 ? '9+' : conv.unreadCount }}
+          </span>
+          }
         </div>
         <div class="flex-1 overflow-hidden">
           <div class="flex justify-between items-baseline">

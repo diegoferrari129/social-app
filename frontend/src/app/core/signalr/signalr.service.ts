@@ -31,9 +31,13 @@ export class SignalRService {
   private notificationSubject = new Subject<Notification>();
   public notification$ = this.notificationSubject.asObservable();
 
+  private chatStarted = false;
+  private notifStarted = false;
+
   constructor(private authService: AuthService) { }
 
   startConnections(): void {
+    if (this.chatStarted && this.notifStarted) return;
     const token = this.authService.getToken();
     if (!token) return;
 

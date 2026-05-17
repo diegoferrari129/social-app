@@ -8,6 +8,7 @@ export interface ChatPreview {
   otherUserName: string;
   lastMessage: string;
   lastMessageTime: Date;
+  unreadCount: number;
 }
 
 export interface Message {
