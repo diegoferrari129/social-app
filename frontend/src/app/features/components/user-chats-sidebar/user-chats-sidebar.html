@@ -5,8 +5,7 @@
   } @else {
   <div class="space-y-2 max-h-96 overflow-y-auto">
     @for (conv of conversations; track conv.id) {
-    <a [routerLink]="['/chat', conv.otherUserId]"
-      class="block p-2 hover:bg-gray-50 rounded border-b border-gray-100 last:border-b-0">
+    <a (click)="openChat(conv.otherUserId)" class="block p-2 hover:bg-gray-50 rounded cursor-pointer">
       <div class="flex items-center gap-2">
         <div class="relative w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
           {{ conv.otherUserName.charAt(0).toUpperCase() }}
@@ -33,4 +32,8 @@
     }
   </div>
   }
+
 </div>
+@if (selectedChatUserId) {
+<app-chat [targetUserId]="selectedChatUserId" (close)="closeChat()"></app-chat>
+}

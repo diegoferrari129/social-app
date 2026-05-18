@@ -1,21 +1,24 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { ChatService, ChatPreview, Message } from '../chat/chat.service';
+import { ChatService, ChatPreview, Message } from './chat.service';
 import { SignalRService } from '../../core/signalr/signalr.service';
 import { AuthService } from '../../core/auth/auth.service';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ViewChild, ElementRef } from '@angular/core';
 
 @Component({
   selector: 'app-chat',
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './chat.html',
-  styleUrl: './chat.css',
+  styleUrls: ['./chat.css']
 })
 export class Chat implements OnInit, OnDestroy {
-  conversations: ChatPreview[] = [];
-  selectedConversation: ChatPreview | null = null;
+  @Input() targetUserId!: string;
+  @Output() close = new EventEmitter<void>();
+  @ViewChild('scrollAnchor') scrollAnchor!: ElementRef;
+
+  conversation: ChatPreview | null = null;
   messages: Message[] = [];
   newMessageText = '';
   loading = false;
@@ -26,18 +29,15 @@ export class Chat implements OnInit, OnDestroy {
   private chatService = inject(ChatService);
   private signalR = inject(SignalRService);
   private auth = inject(AuthService);
-  private route = inject(ActivatedRoute);
-
 
   ngOnInit(): void {
-    this.loadConversations();
-
+    this.loadConversation();
     this.subs.push(this.signalR.message$.subscribe(msg => {
+      if (msg.fromUserId === this.auth.getUserId()) return;
       const msgId = `${msg.fromUserId}_${msg.message}_${new Date(msg.timestamp).getTime()}`;
-      if (this.lastReceivedMsgId === msgId) return; // già ricevuto
+      if (this.lastReceivedMsgId === msgId) return;
       this.lastReceivedMsgId = msgId;
-
-      if (this.selectedConversation && msg.chatId === this.selectedConversation.id) {
+      if (this.conversation && msg.chatId === this.conversation.id) {
         this.messages.push({
           id: '',
           conversationId: msg.chatId,
@@ -46,31 +46,19 @@ export class Chat implements OnInit, OnDestroy {
           sentAt: msg.timestamp,
           isRead: false
         });
-      }
-
-      this.loadConversations();
-    }));
-
-    this.subs.push(this.route.params.subscribe(params => {
-      const userId = params['userId'];
-      if (userId) {
-        setTimeout(() => {
-          const existing = this.conversations.find(c => c.otherUserId === userId);
-          if (existing) {
-            this.selectConversation(existing);
-          } else {
-            this.openChatWithUser(userId);
-          }
-        }, 300);
+        this.scrollToBottom();
+        this.chatService.markMessagesAsRead(this.conversation.id).subscribe();
       }
     }));
   }
 
-  loadConversations(): void {
+  loadConversation(): void {
     this.loading = true;
-    this.chatService.getConversations().subscribe({
-      next: (data) => {
-        this.conversations = data;
+    this.chatService.getOrCreateConversation(this.targetUserId).subscribe({
+      next: (conv) => {
+        this.conversation = conv;
+        this.loadMessages(conv.id);
+        this.chatService.markMessagesAsRead(conv.id).subscribe();
         this.loading = false;
       },
       error: (err) => {
@@ -80,24 +68,37 @@ export class Chat implements OnInit, OnDestroy {
     });
   }
 
-  selectConversation(conv: ChatPreview): void {
-    if (this.selectedConversation?.id === conv.id) return;
-    this.selectedConversation = conv;
-    this.loadMessages(conv.id);
-    this.chatService.markMessagesAsRead(conv.id).subscribe();
-  }
-
-  loadMessages(conversationId: string): void {
-    this.chatService.getMessages(conversationId).subscribe({
-      next: (msgs) => this.messages = msgs,
+  loadMessages(convId: string): void {
+    this.chatService.getMessages(convId).subscribe({
+      next: (msgs) => {
+        this.messages = msgs;
+        setTimeout(() => this.scrollToBottom(), 0);
+      },
       error: (err) => console.error(err)
     });
   }
 
+  private scrollToBottom(): void {
+    setTimeout(() => {
+      this.scrollAnchor?.nativeElement.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  }
+
   sendMessage(): void {
-    if (!this.newMessageText.trim() || !this.selectedConversation || this.isSending) return;
+    if (!this.newMessageText.trim() || !this.conversation || this.isSending) return;
+    const tempMessage: Message = {
+      id: 'temp' + Date.now(),
+      conversationId: this.conversation.id,
+      senderId: this.auth.getUserId()!,
+      text: this.newMessageText,
+      sentAt: new Date(),
+      isRead: false
+    };
+    this.messages.push(tempMessage);
+    setTimeout(() => this.scrollToBottom(), 0);
+
     this.isSending = true;
-    this.signalR.sendMessage(this.selectedConversation.otherUserId, this.newMessageText)
+    this.signalR.sendMessage(this.targetUserId, this.newMessageText)
       .catch(err => console.error(err))
       .finally(() => {
         this.isSending = false;
@@ -109,18 +110,9 @@ export class Chat implements OnInit, OnDestroy {
     return this.auth.getUserId();
   }
 
-  openChatWithUser(userId: string): void {
-    this.chatService.getOrCreateConversation(userId).subscribe({
-      next: (chat) => {
-
-        this.conversations = this.conversations.filter(c => c.id !== chat.id);
-        this.conversations = [chat, ...this.conversations];
-        this.selectConversation(chat);
-      },
-      error: (err) => console.error(err)
-    });
+  closePopup(): void {
+    this.close.emit();
   }
-
 
   ngOnDestroy(): void {
     this.subs.forEach(sub => sub.unsubscribe());

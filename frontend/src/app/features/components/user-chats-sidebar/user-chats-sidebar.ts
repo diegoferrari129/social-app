@@ -5,10 +5,11 @@ import { ChatService, ChatPreview } from '../../chat/chat.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Subscription } from 'rxjs';
 import { SignalRService } from '../../../core/signalr/signalr.service';
+import { Chat } from '../../chat/chat';
 
 @Component({
   selector: 'app-user-chats-sidebar',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, Chat],
   templateUrl: './user-chats-sidebar.html',
   styleUrls: ['./user-chats-sidebar.css']
 })
@@ -20,6 +21,7 @@ export class UserChatsSidebarComponent implements OnInit {
   loading = false;
   private messageSubscription?: Subscription;
   private lastReceivedMsgId = '';
+  selectedChatUserId: string | null = null;
 
   ngOnInit(): void {
     this.loadConversations();
@@ -41,6 +43,14 @@ export class UserChatsSidebarComponent implements OnInit {
         this.loadConversations();
       }
     });
+  }
+
+  openChat(userId: string): void {
+    this.selectedChatUserId = userId;
+  }
+
+  closeChat(): void {
+    this.selectedChatUserId = null;
   }
 
   loadConversations(): void {
