@@ -48,9 +48,6 @@ namespace api.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreatePost([FromBody] CreatePostDto request)
         {
-            if (string.IsNullOrWhiteSpace(request.Title) || string.IsNullOrWhiteSpace(request.Content))
-                return BadRequest(new { message = "Title and Content are required" });
-
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
@@ -61,7 +58,6 @@ namespace api.Controllers
 
             var post = new Post
             {
-                Title = request.Title,
                 Content = request.Content,
                 PostImg = request.PostImg,
                 UserId = userId,
@@ -107,8 +103,6 @@ namespace api.Controllers
             if (existing.UserId != userId)
                 return Unauthorized(new { message = "You can only edit your own posts" });
 
-            if (!string.IsNullOrEmpty(request.Title))
-                existing.Title = request.Title;
             if (!string.IsNullOrEmpty(request.Content))
                 existing.Content = request.Content;
             if (request.PostImg != null)

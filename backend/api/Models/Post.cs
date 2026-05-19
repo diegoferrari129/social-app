@@ -8,7 +8,6 @@ namespace api.Models
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
-        public string? Title { get; set; } = null!;
         public string? PostImg { get; set; }
         public string? Content { get; set; } = null!;
         public string? UserId { get; set; } = null!;
