@@ -14,7 +14,7 @@ export class PostService {
     return this.http.get<Post[]>(`${this.apiUrl}/post/feed?page=${page}&pageSize=${pageSize}`);
   }
 
-  createPost(postData: { title: string; content: string; postImg?: string }): Observable<Post> {
+  createPost(postData: { content: string; postImg?: string }): Observable<Post> {
     return this.http.post<Post>(`${this.apiUrl}/post/create`, postData);
   }
 
@@ -34,7 +34,7 @@ export class PostService {
     return this.http.post<PostComment>(`${this.apiUrl}/post/${postId}/comment`, { text });
   }
 
-  updatePost(id: string, postData: { title: string; content: string; postImg?: string }): Observable<Post> {
+  updatePost(id: string, postData: { content: string; postImg?: string }): Observable<Post> {
     return this.http.put<Post>(`${this.apiUrl}/post/${id}`, postData);
   }
 

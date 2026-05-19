@@ -17,7 +17,6 @@ export class PostEdit implements OnInit, OnDestroy {
   loading = false;
   saving = false;
   error = '';
-  title = '';
   content = '';
   postImg = '';
 
@@ -49,7 +48,6 @@ export class PostEdit implements OnInit, OnDestroy {
           this.router.navigate(['/feed']);
           return;
         }
-        this.title = data.title;
         this.content = data.content;
         this.postImg = data.postImg || '';
         this.loading = false;
@@ -64,13 +62,8 @@ export class PostEdit implements OnInit, OnDestroy {
 
   onSubmit(): void {
     if (!this.post) return;
-    if (!this.title.trim() || !this.content.trim()) {
-      this.error = 'Title and content are required';
-      return;
-    }
     this.saving = true;
     this.postService.updatePost(this.post.id, {
-      title: this.title,
       content: this.content,
       postImg: this.postImg || undefined
     }).subscribe({

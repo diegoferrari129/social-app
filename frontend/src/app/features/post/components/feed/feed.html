@@ -26,9 +26,6 @@
       <a [routerLink]="['/post/edit', post.id]" class="text-blue-500 text-sm ml-4">Edit</a>
       }
     </div>
-    <h3 class="text-xl font-bold mb-2">
-      <a [routerLink]="['/post', post.id]" class="hover:underline">{{ post.title }}</a>
-    </h3>
     <p class="text-gray-700 mb-3">{{ post.content }}</p>
     @if (post.postImg) {
     <img [src]="post.postImg" class="w-full rounded mb-3" />

@@ -14,14 +14,13 @@ export class CreatePostForm {
   private postService = inject(PostService);
   private router = inject(Router);
 
-  title = '';
   content = '';
   postImg = '';
   errorMessage = '';
   isSubmitting = false;
 
   onSubmit() {
-    if (!this.title || !this.content) {
+    if (!this.content) {
       this.errorMessage = 'Title and content cannot be empty';
       return;
     }
@@ -30,7 +29,6 @@ export class CreatePostForm {
     this.errorMessage = '';
 
     this.postService.createPost({
-      title: this.title,
       content: this.content,
       postImg: this.postImg || undefined
     }).subscribe({
