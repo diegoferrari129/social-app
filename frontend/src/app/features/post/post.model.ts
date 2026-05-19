@@ -12,6 +12,7 @@ export interface Post {
   postImg?: string;
   userId: string;
   userName: string;
+  userImgUrl?: string;
   likes: string[];
   comments: PostComment[];
   createdAt: string;

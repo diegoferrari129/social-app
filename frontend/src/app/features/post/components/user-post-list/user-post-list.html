@@ -7,6 +7,8 @@
   @for (post of posts; track post.id) {
   <div class="bg-white rounded-lg shadow mb-6 p-4">
     <div class="flex items-center mb-3">
+      <img [src]="post.userImgUrl || '/assets/default-avatar.png'" class="w-6 h-6 rounded-full object-cover mr-2"
+        alt="Avatar" />
       <div class="font-semibold">{{ post.userName }}</div>
       <div class="text-xs text-gray-500 ml-2">{{ post.createdAt | date:'dd/MM/yyyy HH:mm' }}</div>
     </div>
