@@ -101,5 +101,14 @@ namespace api.Services
             var result = await _postsCollection.ReplaceOneAsync(p => p.Id == postId, post);
             return result.IsAcknowledged && result.ModifiedCount > 0;
         }
+
+        public async Task UpdateUserInfoInPostsAsync(string userId, string newName, string newImgUrl)
+        {
+            var filter = Builders<Post>.Filter.Eq(p => p.UserId, userId);
+            var update = Builders<Post>.Update
+                .Set(p => p.UserName, newName)
+                .Set(p => p.UserImgUrl, newImgUrl);
+            await _postsCollection.UpdateManyAsync(filter, update);
+        }
     }
 }

@@ -21,13 +21,15 @@ namespace api.Controllers
         private readonly IConfiguration _configuration;
         private readonly NotificationService _notificationService;
         private readonly IHubContext<NotificationsHub> _notificationsHub;
-        public UserController(UserService userService, ILogger<UserController> logger, IConfiguration configuration, NotificationService notificationService, IHubContext<NotificationsHub> notificationsHub)
+        private readonly PostService _postService;
+        public UserController(UserService userService, PostService postService, ILogger<UserController> logger, IConfiguration configuration, NotificationService notificationService, IHubContext<NotificationsHub> notificationsHub)
         {
             _userService = userService;
             _logger = logger;
             _configuration = configuration;
             _notificationService = notificationService;
             _notificationsHub = notificationsHub;
+            _postService = postService;
         }
 
         [HttpPost("create")]
@@ -111,6 +113,10 @@ namespace api.Controllers
                 user.ImgUrl = request.ImgUrl;
 
             await _userService.UpdateAsync(id, user);
+            if (!string.IsNullOrWhiteSpace(request.Name) || !string.IsNullOrWhiteSpace(request.ImgUrl))
+            {
+                await _postService.UpdateUserInfoInPostsAsync(id, user.Name, user.ImgUrl);
+            }
 
             _logger.LogInformation("User {Id} updated", id);
 
