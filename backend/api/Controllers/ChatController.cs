@@ -137,6 +137,7 @@ namespace api.Controllers
                 Id = chat.Id!,
                 OtherUserId = otherParticipant,
                 OtherUserName = otherUser?.Name ?? "Unknown",
+                OtherUserImgUrl = otherUser?.ImgUrl ?? "",
                 LastMessage = chat.LastMessage,
                 LastMessageTime = chat.LastMessageTime
             });

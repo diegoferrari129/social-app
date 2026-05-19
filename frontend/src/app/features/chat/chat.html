@@ -1,7 +1,11 @@
 <div class="fixed bottom-4 right-4 w-96 h-96 bg-white rounded-lg shadow-xl flex flex-col z-50">
   <!-- Header -->
   <div class="bg-blue-500 text-white px-4 py-2 rounded-t-lg flex justify-between items-center">
-    <span>Chat con {{ conversation?.otherUserName || '...' }}</span>
+    <div class="flex items-center gap-2">
+      <img [src]="conversation?.otherUserImgUrl || '/assets/default-avatar.png'"
+        class="w-6 h-6 rounded-full object-cover" alt="Avatar" />
+      <span>Chat con {{ conversation?.otherUserName || '...' }}</span>
+    </div>
     <button (click)="closePopup()" class="text-white hover:text-gray-200">✕</button>
   </div>
 
