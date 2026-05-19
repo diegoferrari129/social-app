@@ -62,6 +62,7 @@ namespace api.Controllers
                 PostImg = request.PostImg,
                 UserId = userId,
                 UserName = user.Name,
+                UserImgUrl = user.ImgUrl ?? "",
                 CreatedAt = DateTime.UtcNow,
                 Likes = new List<string>(),
                 Comments = new List<Comment>()

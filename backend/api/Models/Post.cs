@@ -12,6 +12,7 @@ namespace api.Models
         public string? Content { get; set; } = null!;
         public string? UserId { get; set; } = null!;
         public string? UserName { get; set; } = null!;
+        public string UserImgUrl { get; set; } = null!;
 
         public List<string> Likes { get; set; } = new();
         public List<Comment> Comments { get; set; } = new();
