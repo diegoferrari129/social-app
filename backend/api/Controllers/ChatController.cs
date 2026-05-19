@@ -100,6 +100,7 @@ namespace api.Controllers
                     Id = chat.Id!,
                     OtherUserId = otherUserId,
                     OtherUserName = otherUser?.Name ?? "Unknown",
+                    OtherUserImgUrl = otherUser?.ImgUrl ?? "",
                     LastMessage = chat.LastMessage,
                     LastMessageTime = chat.LastMessageTime,
                     UnreadCount = unreadCount
