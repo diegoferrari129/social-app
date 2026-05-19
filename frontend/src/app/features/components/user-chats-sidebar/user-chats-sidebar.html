@@ -7,8 +7,10 @@
     @for (conv of conversations; track conv.id) {
     <a (click)="openChat(conv.otherUserId)" class="block p-2 hover:bg-gray-50 rounded cursor-pointer">
       <div class="flex items-center gap-2">
-        <div class="relative w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
-          {{ conv.otherUserName.charAt(0).toUpperCase() }}
+        <!-- Avatar con immagine profilo -->
+        <div class="relative w-8 h-8">
+          <img [src]="conv.otherUserImgUrl || '/assets/default-avatar.png'" class="w-8 h-8 rounded-full object-cover"
+            alt="Avatar" />
           @if (conv.unreadCount > 0) {
           <span
             class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -32,8 +34,8 @@
     }
   </div>
   }
-
 </div>
+
 @if (selectedChatUserId) {
 <app-chat [targetUserId]="selectedChatUserId" (close)="closeChat()"></app-chat>
 }

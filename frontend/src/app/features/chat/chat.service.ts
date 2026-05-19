@@ -6,6 +6,7 @@ export interface ChatPreview {
   id: string;
   otherUserId: string;
   otherUserName: string;
+  otherUserImgUrl?: string;
   lastMessage: string;
   lastMessageTime: Date;
   unreadCount: number;
