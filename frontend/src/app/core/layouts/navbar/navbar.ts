@@ -1,3 +1,4 @@
+import { SeedService } from './../../seed.service';
 import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
@@ -26,7 +27,7 @@ export class Navbar implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private router = inject(Router);
   private signalR = inject(SignalRService);
-
+  private seedService = inject(SeedService)
   private http = inject(HttpClient);
 
   ngOnInit(): void {
@@ -68,6 +69,13 @@ export class Navbar implements OnInit, OnDestroy {
       error: (err: any) => {
         console.error('Error on mark as read', err);
       }
+    });
+  }
+
+  seedDatabase(): void {
+    this.seedService.populateDatabase().subscribe({
+      next: (res) => alert('Database popolato!'),
+      error: (err) => alert('Errore: ' + err.message)
     });
   }
 

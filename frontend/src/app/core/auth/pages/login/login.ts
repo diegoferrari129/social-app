@@ -27,4 +27,10 @@ export class Login {
       }
     });
   }
+
+  demoLogin(): void {
+    this.email = 'user_1@example.com';
+    this.password = 'password123';
+    this.onSubmit();
+  }
 }

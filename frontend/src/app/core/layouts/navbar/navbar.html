@@ -2,6 +2,9 @@
   <div class="container mx-auto px-4 py-3 flex justify-between items-center">
 
     <a routerLink="/" class="text-xl font-bold text-blue-600">SocialApp</a>
+    <button (click)="seedDatabase()" class="bg-green-500 text-white px-2 py-1 rounded text-xs">
+      Seed DB
+    </button>
 
     @if (!isAuthenticated) {
     <div class="space-x-4">
