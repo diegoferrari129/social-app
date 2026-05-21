@@ -62,6 +62,25 @@ namespace api.Controllers
         private List<User> GenerateRandomUsers(int count)
         {
             var users = new List<User>();
+            var bioSamples = new[]
+            {
+                "Software developer passionate about coding and open source.",
+                "Loves hiking, photography, and good coffee.",
+                "Tech enthusiast and lifelong learner.",
+                "Digital artist exploring new creative horizons.",
+                "Foodie and travel addict. Always on the go.",
+                "Fitness lover and wellness coach.",
+                "Music producer and sound designer.",
+                "Bookworm and fantasy novel lover.",
+                "Yoga teacher, mindfulness advocate.",
+                "Startup founder and entrepreneur.",
+                "Gamer and tech reviewer.",
+                "Nature lover and environmental activist.",
+                "History buff and museum enthusiast.",
+                "Science nerd, astronomy fan.",
+                "Pet lover with two cats 🐱"
+            };
+
             for (int i = 1; i <= count; i++)
             {
                 string name = $"User_{i}";
@@ -72,7 +91,7 @@ namespace api.Controllers
                     Name = name,
                     Email = $"{name.ToLower()}@example.com",
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"),
-                    Bio = RandomString(50),
+                    Bio = bioSamples[_random.Next(bioSamples.Length)],
                     ImgUrl = $"https://randomuser.me/api/portraits/{gender}/{i % 70}.jpg",
                     Followers = new List<string>(),
                     Following = new List<string>()
@@ -84,22 +103,42 @@ namespace api.Controllers
         private List<Post> GenerateRandomPosts(List<User> users)
         {
             var posts = new List<Post>();
+            var sampleTexts = new[]
+            {
+                "What a fantastic day!",
+                "I'm learning Angular and I love it.",
+                "Anyone want to hang out tonight?",
+                "My new project is almost finished!",
+                "What do you think about the latest update?",
+                "Programming is my passion.",
+                "Just watched a beautiful sunset.",
+                "Any recommendations for a vacation?",
+                "Coffee in the morning is my fuel.",
+                "Reading an interesting book right now.",
+                "Who won the game yesterday?",
+                "Finally, the weekend!",
+                "My favorite song is...",
+                "Trying out a new recipe today.",
+                "Happy to be part of this community."
+            };
+            var random = new Random();
+
             foreach (var user in users)
             {
-                int postCount = _random.Next(3, 6);
+                int postCount = random.Next(3, 6);
                 for (int i = 0; i < postCount; i++)
                 {
                     posts.Add(new Post
                     {
                         Id = ObjectId.GenerateNewId().ToString(),
-                        Content = RandomString(_random.Next(80, 200)),
-                        PostImg = _random.NextDouble() > 0.7 ? $"https://picsum.photos/id/{_random.Next(1, 100)}/200/150" : null,
+                        Content = sampleTexts[random.Next(sampleTexts.Length)],
+                        PostImg = random.NextDouble() > 0.7 ? $"https://picsum.photos/id/{random.Next(1, 100)}/200/150" : null,
                         UserId = user.Id,
                         UserName = user.Name,
                         UserImgUrl = user.ImgUrl,
                         Likes = new List<string>(),
                         Comments = new List<Comment>(),
-                        CreatedAt = DateTime.UtcNow.AddDays(-_random.Next(0, 30))
+                        CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30))
                     });
                 }
             }
@@ -119,6 +158,12 @@ namespace api.Controllers
 
         private async Task AddRandomComments(List<Post> posts, List<User> users)
         {
+            var commentTexts = new[]
+            {
+                "Nice!", "Agreed!", "Interesting", "Thanks for sharing",
+                "I disagree", "Great!", "Awesome", "Congrats",
+                "I really like this", "What do you think about...", "This is useful"
+            };
             foreach (var post in posts)
             {
                 int commentCount = _random.Next(1, 4);
@@ -130,7 +175,7 @@ namespace api.Controllers
                         Id = ObjectId.GenerateNewId().ToString(),
                         UserId = user.Id,
                         UserName = user.Name,
-                        Text = RandomString(_random.Next(20, 80)),
+                        Text = commentTexts[_random.Next(commentTexts.Length)],
                         CreatedAt = DateTime.UtcNow.AddMinutes(-_random.Next(0, 10080))
                     };
                     post.Comments.Add(comment);
@@ -187,12 +232,25 @@ namespace api.Controllers
                 for (int j = 0; j < msgCount; j++)
                 {
                     var sender = _random.Next(2) == 0 ? user1 : user2;
+                    var messageTexts = new[]
+                   {
+                        "Hey, how are you?",
+                        "What's up?",
+                        "See you later",
+                        "Thanks!",
+                        "Let's meet soon",
+                        "I agree",
+                        "No problem",
+                        "Great talking to you",
+                        "Take care",
+                        "See you tomorrow"
+                    };
                     var message = new Message
                     {
                         Id = ObjectId.GenerateNewId().ToString(),
                         ChatId = chat.Id,
                         SenderId = sender.Id,
-                        Text = RandomString(_random.Next(20, 100)),
+                        Text = messageTexts[_random.Next(messageTexts.Length)],
                         SentAt = DateTime.UtcNow.AddMinutes(-_random.Next(0, 10080)),
                         IsRead = _random.Next(2) == 0
                     };
