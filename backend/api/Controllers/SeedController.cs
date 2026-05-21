@@ -267,10 +267,16 @@ namespace api.Controllers
             }
         }
 
-        private string RandomString(int length)
+        [HttpPost("clear")]
+        public async Task<IActionResult> ClearAll()
         {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ";
-            return new string(Enumerable.Repeat(chars, length).Select(s => s[_random.Next(s.Length)]).ToArray());
+            await _usersCollection.DeleteManyAsync(FilterDefinition<User>.Empty);
+            await _postsCollection.DeleteManyAsync(FilterDefinition<Post>.Empty);
+            await _notificationsCollection.DeleteManyAsync(FilterDefinition<Notification>.Empty);
+            await _conversationsCollection.DeleteManyAsync(FilterDefinition<Chat>.Empty);
+            await _messagesCollection.DeleteManyAsync(FilterDefinition<Message>.Empty);
+
+            return Ok(new { message = "All collections cleared successfully." });
         }
     }
 }

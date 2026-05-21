@@ -1,3 +1,4 @@
+using api.Controllers;
 using api.Filters;
 using api.Hubs;
 using api.Models;
@@ -10,120 +11,143 @@ using Scalar.AspNetCore;
 using Serilog;
 using System.Text;
 
-var builder = WebApplication.CreateBuilder(args);
-
-Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(builder.Configuration)
-    .Enrich.FromLogContext()
-    .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
-    .WriteTo.File("Logs/api-.log",
-        rollingInterval: RollingInterval.Day,
-        outputTemplate: "{Timestamp:dd-MM-yyyy HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
-    .CreateLogger();
-
-builder.Host.UseSerilog();
-
-builder.Services.Configure<MongoDbSettings>(
-    builder.Configuration.GetSection("MongoDB"));
-
-builder.Services.AddSingleton<IMongoDatabase>(sp =>
+public class Program
 {
-    var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
-    var client = new MongoClient(settings.ConnectionString);
-    return client.GetDatabase(settings.DatabaseName);
-});
 
-builder.Services.AddSingleton<UserService>();
-builder.Services.AddSingleton<PostService>();
-builder.Services.AddSingleton<ChatService>();
-builder.Services.AddSingleton<NotificationService>();
+    public static async Task Main(string[] args)
+    {
+        var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSignalR();
+        Log.Logger = new LoggerConfiguration()
+            .ReadFrom.Configuration(builder.Configuration)
+            .Enrich.FromLogContext()
+            .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+            .WriteTo.File("Logs/api-.log",
+                rollingInterval: RollingInterval.Day,
+                outputTemplate: "{Timestamp:dd-MM-yyyy HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+            .CreateLogger();
 
-builder.Services.AddOpenApi();
+        builder.Host.UseSerilog();
 
-builder.Services.AddControllers(options =>
-{
-    options.Filters.Add<GlobalExHandler>();
-});
+        builder.Services.Configure<MongoDbSettings>(
+            builder.Configuration.GetSection("MongoDB"));
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowClient",
-        policy =>
+        builder.Services.AddSingleton<IMongoDatabase>(sp =>
         {
-            policy.WithOrigins("http://localhost:4200")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod()
-                  .AllowCredentials();
+            var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
+            var client = new MongoClient(settings.ConnectionString);
+            return client.GetDatabase(settings.DatabaseName);
         });
-});
 
-var jwtSecret = builder.Configuration["JwtSecrets:Secret"];
-if (string.IsNullOrEmpty(jwtSecret))
-    throw new InvalidOperationException("JWT Secret missing");
+        builder.Services.AddSingleton<UserService>();
+        builder.Services.AddSingleton<PostService>();
+        builder.Services.AddSingleton<ChatService>();
+        builder.Services.AddSingleton<NotificationService>();
 
-var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
+        builder.Services.AddSignalR();
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
+        builder.Services.AddOpenApi();
+
+        builder.Services.AddControllers(options =>
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = "https://localhost:7022",
-            ValidAudience = "https://localhost:7022",
-            IssuerSigningKey = key,
-            ClockSkew = TimeSpan.Zero
-        };
-        options.Events = new JwtBearerEvents
+            options.Filters.Add<GlobalExHandler>();
+        });
+
+        builder.Services.AddCors(options =>
         {
-            OnMessageReceived = context =>
-            {
-                var accessToken = context.Request.Query["access_token"];
-                if (!string.IsNullOrEmpty(accessToken))
+            options.AddPolicy("AllowClient",
+                policy =>
                 {
-                    context.Token = accessToken;
+                    policy.WithOrigins("http://localhost:4200")
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials();
+                });
+        });
+
+        var jwtSecret = builder.Configuration["JwtSecrets:Secret"];
+        if (string.IsNullOrEmpty(jwtSecret))
+            throw new InvalidOperationException("JWT Secret missing");
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
+
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = "https://localhost:7022",
+                    ValidAudience = "https://localhost:7022",
+                    IssuerSigningKey = key,
+                    ClockSkew = TimeSpan.Zero
+                };
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+                        if (!string.IsNullOrEmpty(accessToken))
+                        {
+                            context.Token = accessToken;
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
+            });
+
+        var app = builder.Build();
+        async Task SeedDatabaseIfEmpty()
+        {
+            using (var scope = app.Services.CreateScope())
+            {
+                var database = scope.ServiceProvider.GetRequiredService<IMongoDatabase>();
+                var usersCollection = database.GetCollection<User>("Users");
+                bool anyUser = await usersCollection.Find(_ => true).AnyAsync();
+                if (!anyUser)
+                {
+                    var seedController = new SeedController(database);
+                    await seedController.PopulateDatabase();
+                    Log.Information("Database seeded automatically.");
                 }
-                return Task.CompletedTask;
             }
-        };
-    });
+        }
 
-var app = builder.Build();
+        await SeedDatabaseIfEmpty();
+        app.UseHttpsRedirection();
+        app.UseCors("AllowClient");
+        app.UseAuthentication();
+        app.UseAuthorization();
+        app.MapHub<ChatHub>("/chatHub");
+        app.MapHub<NotificationsHub>("/notificationsHub");
+        app.MapControllers();
 
-app.UseHttpsRedirection();
-app.UseCors("AllowClient");
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapHub<ChatHub>("/chatHub");
-app.MapHub<NotificationsHub>("/notificationsHub");
-app.MapControllers();
+        if (app.Environment.IsDevelopment())
+        {
+            app.MapOpenApi();
+            app.MapScalarApiReference(options =>
+            {
+                options.WithTitle("Social API REST")
+                       .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+            });
+        }
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.MapScalarApiReference(options =>
-    {
-        options.WithTitle("Social API REST")
-               .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
-    });
+        try
+        {
+            Log.Information("application start");
+            app.Run();
+        }
+        catch (Exception ex)
+        {
+            Log.Fatal(ex, "application terminated with fatal ex");
+        }
+        finally
+        {
+            Log.CloseAndFlush();
+        }
+
+    }
 }
-
-try
-{
-    Log.Information("application start");
-    app.Run();
-}
-catch (Exception ex)
-{
-    Log.Fatal(ex, "application terminated with fatal ex");
-}
-finally
-{
-    Log.CloseAndFlush();
-}
-
