@@ -103,6 +103,11 @@ export class Chat implements OnInit, OnDestroy {
 
     this.isSending = true;
     this.signalR.sendMessage(this.targetUserId, this.newMessageText)
+      .then(() => {
+        this.chatService.markMessagesAsRead(this.conversation!.id).subscribe(() => {
+          this.chatService.notifyUnreadCountChanged();
+        });
+      })
       .catch(err => console.error(err))
       .finally(() => {
         this.isSending = false;

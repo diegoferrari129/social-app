@@ -31,7 +31,14 @@ export class UserChatsSidebarComponent implements OnInit {
     );
     this.messageSubscription = this.signalR.message$.subscribe(msg => {
       const currentUserId = this.auth.getUserId();
-      if (msg.fromUserId === currentUserId) return;
+      if (msg.fromUserId === currentUserId) {
+        const conversation = this.conversations.find(c => c.id === msg.chatId);
+        if (conversation) {
+          conversation.unreadCount = 0;
+          this.conversations = [...this.conversations];
+        }
+        return;
+      }
 
       const msgId = `${msg.fromUserId}_${msg.message}_${new Date(msg.timestamp).getTime()}`;
       if (this.lastReceivedMsgId === msgId) return;
