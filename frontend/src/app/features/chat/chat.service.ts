@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
+import { Subject } from 'rxjs';
 export interface ChatPreview {
   id: string;
   otherUserId: string;
@@ -24,6 +24,9 @@ export interface Message {
 @Injectable({ providedIn: 'root' })
 export class ChatService {
   private apiUrl = '/api';
+  private unreadCountUpdated = new Subject<void>();
+  unreadCountUpdated$ = this.unreadCountUpdated.asObservable();
+
 
   constructor(private http: HttpClient) { }
 
@@ -46,5 +49,7 @@ export class ChatService {
   sendMessage(toUserId: string, text: string): Observable<Message> {
     return this.http.post<Message>(`${this.apiUrl}/chat/send`, { toUserId, text });
   }
-
+  notifyUnreadCountChanged() {
+    this.unreadCountUpdated.next();
+  }
 }

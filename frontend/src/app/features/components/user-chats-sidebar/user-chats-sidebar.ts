@@ -22,9 +22,13 @@ export class UserChatsSidebarComponent implements OnInit {
   private messageSubscription?: Subscription;
   private lastReceivedMsgId = '';
   selectedChatUserId: string | null = null;
+  private subscriptions: Subscription[] = [];
 
   ngOnInit(): void {
     this.loadConversations();
+    this.subscriptions.push(
+      this.chatService.unreadCountUpdated$.subscribe(() => this.loadConversations())
+    );
     this.messageSubscription = this.signalR.message$.subscribe(msg => {
       const currentUserId = this.auth.getUserId();
       if (msg.fromUserId === currentUserId) return;
@@ -69,5 +73,6 @@ export class UserChatsSidebarComponent implements OnInit {
 
   ngOnDestroy(): void {
     this.messageSubscription?.unsubscribe();
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }

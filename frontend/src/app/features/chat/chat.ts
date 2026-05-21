@@ -47,7 +47,9 @@ export class Chat implements OnInit, OnDestroy {
           isRead: false
         });
         this.scrollToBottom();
-        this.chatService.markMessagesAsRead(this.conversation.id).subscribe();
+        this.chatService.markMessagesAsRead(this.conversation.id).subscribe(() => {
+          this.chatService.notifyUnreadCountChanged();
+        });
       }
     }));
   }
@@ -58,7 +60,9 @@ export class Chat implements OnInit, OnDestroy {
       next: (conv) => {
         this.conversation = conv;
         this.loadMessages(conv.id);
-        this.chatService.markMessagesAsRead(conv.id).subscribe();
+        this.chatService.markMessagesAsRead(conv.id).subscribe(() => {
+          this.chatService.notifyUnreadCountChanged();
+        });
         this.loading = false;
       },
       error: (err) => {
