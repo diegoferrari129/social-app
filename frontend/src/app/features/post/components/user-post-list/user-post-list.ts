@@ -17,6 +17,7 @@ export class UserPostList implements OnInit, OnDestroy {
   posts: Post[] = [];
   loading = false;
   error = '';
+  commentsState = new Map<string, { showing: boolean; visibleCount: number }>();
   private sub?: Subscription;
   private routeSub?: Subscription;
 
@@ -44,6 +45,48 @@ export class UserPostList implements OnInit, OnDestroy {
         this.loading = false;
         console.error(err);
       }
+    });
+  }
+
+  getCommentsState(postId: string) {
+    return this.commentsState.get(postId);
+  }
+
+  toggleComments(postId: string): void {
+    if (this.commentsState.has(postId)) {
+      const state = this.commentsState.get(postId)!;
+      state.showing = !state.showing;
+      this.commentsState.set(postId, state);
+    } else {
+      this.commentsState.set(postId, { showing: true, visibleCount: 10 });
+    }
+  }
+
+  loadMoreComments(postId: string): void {
+    const state = this.commentsState.get(postId);
+    if (state) {
+      state.visibleCount += 10;
+      this.commentsState.set(postId, state);
+    }
+  }
+
+  onLike(postId: string): void {
+    this.postService.toggleLike(postId).subscribe({
+      next: () => {
+        // Aggiorna localmente il contatore dei like
+        const post = this.posts.find(p => p.id === postId);
+        if (post) {
+          const userId = this.authService.getUserId();
+          if (userId) {
+            if (post.likes.includes(userId)) {
+              post.likes = post.likes.filter(id => id !== userId);
+            } else {
+              post.likes.push(userId);
+            }
+          }
+        }
+      },
+      error: (err) => console.error(err)
     });
   }
 
