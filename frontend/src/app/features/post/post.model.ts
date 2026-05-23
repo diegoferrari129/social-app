@@ -2,6 +2,7 @@ export interface PostComment {
   id: string;
   userId: string;
   userName: string;
+  userImgUrl?: string;
   text: string;
   createdAt: string;
 }
