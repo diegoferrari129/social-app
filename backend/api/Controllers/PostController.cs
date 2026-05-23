@@ -183,13 +183,19 @@ namespace api.Controllers
         public async Task<IActionResult> AddComment(string id, [FromBody] CommentDto request)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
             var userName = User.FindFirstValue(ClaimTypes.Name);
             if (userId == null || userName == null) return Unauthorized();
+
+            var user = await _userService.GetByIdAsync(userId);
+            if (user == null) return NotFound();
 
             var comment = new Comment
             {
                 UserId = userId,
                 UserName = userName,
+                UserImgUrl = user.ImgUrl ?? "",
                 Text = request.Text
             };
 
