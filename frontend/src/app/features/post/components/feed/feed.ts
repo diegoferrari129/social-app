@@ -24,6 +24,8 @@ export class Feed implements OnInit, OnDestroy {
 
   private feedSubscription?: Subscription;
 
+  commentsState = new Map<string, { showing: boolean; visibleCount: number }>();
+
   ngOnInit() {
     this.loadFeed();
   }
@@ -43,6 +45,28 @@ export class Feed implements OnInit, OnDestroy {
         this.loading.set(false);
       }
     });
+  }
+
+  getCommentsState(postId: string) {
+    return this.commentsState.get(postId);
+  }
+
+  toggleComments(postId: string): void {
+    if (this.commentsState.has(postId)) {
+      const state = this.commentsState.get(postId)!;
+      state.showing = !state.showing;
+      this.commentsState.set(postId, state);
+    } else {
+      this.commentsState.set(postId, { showing: true, visibleCount: 10 });
+    }
+  }
+
+  loadMoreComments(postId: string): void {
+    const state = this.commentsState.get(postId);
+    if (state) {
+      state.visibleCount += 10;
+      this.commentsState.set(postId, state);
+    }
   }
 
   async onLike(postId: string) {
