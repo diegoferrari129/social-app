@@ -268,6 +268,23 @@ namespace api.Controllers
             });
         }
 
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchUsers([FromQuery] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return Ok(new List<object>());
+
+            var users = await _userService.SearchByNameAsync(query);
+            var result = users.Select(u => new
+            {
+                u.Id,
+                u.Name,
+                u.ImgUrl,
+                u.Bio
+            });
+            return Ok(result);
+        }
+
         private string GenerateJwtToken(User user)
         {
             var jwtSecret = _configuration["JwtSecrets:Secret"]

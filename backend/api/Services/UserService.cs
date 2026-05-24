@@ -58,5 +58,11 @@ namespace api.Services
 
             return true;
         }
+
+        public async Task<List<User>> SearchByNameAsync(string query)
+        {
+            var filter = Builders<User>.Filter.Regex(u => u.Name, new MongoDB.Bson.BsonRegularExpression(query, "i"));
+            return await _usersCollection.Find(filter).Limit(10).ToListAsync();
+        }
     }
 }
