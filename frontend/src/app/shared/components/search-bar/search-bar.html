@@ -1,0 +1,18 @@
+<div class="relative">
+  <input type="text" [(ngModel)]="searchQuery" (input)="onSearch()" placeholder="Cerca utenti..."
+    class="border rounded-lg px-3 py-1 text-sm w-48 focus:outline-none focus:ring" />
+  @if (results.length > 0) {
+  <div class="absolute top-full left-0 mt-1 w-64 bg-white border rounded-lg shadow-lg z-10">
+    @for (user of results; track user.id) {
+    <a [routerLink]="['/profile', user.id]" (click)="clearSearch()"
+      class="block px-3 py-2 hover:bg-gray-100 border-b last:border-b-0">
+      <div class="flex items-center gap-2">
+        <img [src]="user.imgUrl || '/assets/default-avatar.png'" class="w-6 h-6 rounded-full object-cover">
+        <div class="font-medium">{{ user.name }}</div>
+      </div>
+      <div class="text-xs text-gray-500 truncate">{{ user.bio }}</div>
+    </a>
+    }
+  </div>
+  }
+</div>

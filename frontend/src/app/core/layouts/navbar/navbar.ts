@@ -5,12 +5,13 @@ import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../auth/auth.service';
 import { Subscription } from 'rxjs';
 import { SignalRService } from '../../signalr/signalr.service';
+import { SearchBar } from '../../../shared/components/search-bar/search-bar';
 
 import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-navbar',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, SearchBar],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })

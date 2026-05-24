@@ -46,4 +46,8 @@ export class UserService {
   getSuggestedUsers(limit: number = 10): Observable<SuggestedUser[]> {
     return this.http.get<SuggestedUser[]>(`${this.apiUrl}/user/suggested?limit=${limit}`);
   }
+
+  searchUsers(query: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/user/search?query=${query}`);
+  }
 }
