@@ -1,8 +1,11 @@
 <header class="bg-white shadow-md">
   <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+    <!-- Logo + Search bar -->
+    <div class="flex items-center space-x-4">
+      <a routerLink="/" class="text-xl font-bold text-blue-600">SocialApp</a>
+      <app-search-bar></app-search-bar>
+    </div>
 
-    <a routerLink="/" class="text-xl font-bold text-blue-600">SocialApp</a>
-    <app-search-bar></app-search-bar>
     @if (!isAuthenticated) {
     <div class="space-x-4">
       <a routerLink="/login" class="text-gray-600 hover:text-blue-500">Login</a>
@@ -10,22 +13,26 @@
     </div>
     } @else {
     <div class="flex items-center space-x-4">
-      <a routerLink="/chat" class="text-gray-600 hover:text-blue-500">Chat</a>
-      <div class="relative">
-        <!-- icona notifiche -->
+
+      <!-- notifications -->
+      <button (click)="markNotificationsAsRead()" class="relative">
+        🔔
         @if (unreadCount > 0) {
-        <button (click)="markNotificationsAsRead()" class="relative">
-          @if (unreadCount > 0) {
-          <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5">
-            {{ unreadCount }}
-          </span>
-          }
-        </button>
+        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5">
+          {{ unreadCount }}
+        </span>
         }
-      </div>
+      </button>
+
       <a routerLink="/create-post" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
         New Post
       </a>
+
+      <a [routerLink]="['/profile', currentUserId]" class="text-gray-600 hover:text-blue-500">
+        My Profile
+      </a>
+
+      <!-- user menu -->
       <div class="relative">
         <button (click)="toggleMenu()" class="flex items-center space-x-2 focus:outline-none">
           <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
@@ -38,9 +45,6 @@
         </button>
         @if (menuOpen) {
         <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-          <a [routerLink]="['/profile', currentUserId]" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-            My Profile
-          </a>
           <button (click)="logout()" class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
             Logout
           </button>
@@ -49,6 +53,5 @@
       </div>
     </div>
     }
-
   </div>
 </header>
