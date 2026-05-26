@@ -6,12 +6,13 @@ import { AuthService } from '../../auth/auth.service';
 import { Subscription } from 'rxjs';
 import { SignalRService } from '../../signalr/signalr.service';
 import { SearchBar } from '../../../shared/components/search-bar/search-bar';
+import { NotificationDropdownComponent } from '../../../shared/components/notification-dropdown/notification-dropdown';
 
 import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-navbar',
-  imports: [CommonModule, RouterModule, SearchBar],
+  imports: [CommonModule, RouterModule, SearchBar, NotificationDropdownComponent],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
