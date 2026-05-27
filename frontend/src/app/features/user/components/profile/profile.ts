@@ -9,11 +9,11 @@ import { FollowButton } from '../../../../shared/components/follow-button/follow
 import { UserPostList } from '../../../post/components/user-post-list/user-post-list';
 import { SuggestedUsers } from '../suggested-users/suggested-users';
 import { UserChatsSidebarComponent } from '../../../components/user-chats-sidebar/user-chats-sidebar';
-
+import { Chat } from '../../../chat/chat';
 
 @Component({
   selector: 'app-profile',
-  imports: [CommonModule, FormsModule, RouterModule, FollowButton, UserPostList, SuggestedUsers, UserChatsSidebarComponent],
+  imports: [CommonModule, FormsModule, RouterModule, FollowButton, UserPostList, SuggestedUsers, UserChatsSidebarComponent, Chat],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
@@ -28,6 +28,7 @@ export class Profile implements OnInit, OnDestroy {
 
   private sub?: Subscription;
   private routeSub?: Subscription;
+  selectedChatUserId: string | null = null;
 
   constructor(
     private userService: UserService,
@@ -112,6 +113,14 @@ export class Profile implements OnInit, OnDestroy {
         this.saving = false;
       }
     });
+  }
+
+  openChat(userId: string): void {
+    this.selectedChatUserId = userId;
+  }
+
+  closeChat(): void {
+    this.selectedChatUserId = null;
   }
 
   ngOnDestroy(): void {

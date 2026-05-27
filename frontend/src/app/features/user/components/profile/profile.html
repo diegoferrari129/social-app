@@ -22,17 +22,23 @@
                 <h2 class="text-2xl font-bold">{{ user.name }}</h2>
                 <p class="text-gray-600 mt-1">{{ user.bio }}</p>
               </div>
-              <!-- Bottone follow -->
-              @if (!isOwnProfile) {
-              <app-follow-button [targetUserId]="user.id" [isFollowing]="isFollowing"
-                (followChanged)="onFollowChanged($event)"></app-follow-button>
-              }
-              @if (isOwnProfile) {
-              <button (click)="toggleEdit()"
-                class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded text-sm font-medium">
-                Modifica profilo
-              </button>
-              }
+              <div class="flex gap-2">
+                @if (!isOwnProfile) {
+                <app-follow-button [targetUserId]="user.id" [isFollowing]="isFollowing"
+                  (followChanged)="onFollowChanged($event)"></app-follow-button>
+                <!-- Message button -->
+                <button (click)="openChat(user.id)"
+                  class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                  Message
+                </button>
+                }
+                @if (isOwnProfile) {
+                <button (click)="toggleEdit()"
+                  class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded text-sm font-medium">
+                  Modifica profilo
+                </button>
+                }
+              </div>
             </div>
             <div class="flex gap-4 mt-3 text-sm text-gray-700">
               <span><strong>{{ user.followersCount || 0 }}</strong> follower</span>
@@ -50,9 +56,14 @@
       }
     </main>
 
-    <!-- Sidebar destra: chat  -->
+    <!-- Sidebar destra: chat -->
     <aside class="md:col-span-3">
       <app-user-chats-sidebar></app-user-chats-sidebar>
     </aside>
   </div>
 </div>
+
+<!-- Popup chat (se aperto) -->
+@if (selectedChatUserId) {
+<app-chat [targetUserId]="selectedChatUserId" (close)="closeChat()"></app-chat>
+}
