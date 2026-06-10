@@ -1,5 +1,5 @@
 <div class="bg-white rounded-lg shadow p-4 h-full flex flex-col">
-  <h3 class="font-bold text-lg mb-3 flex-shrink-0">Suggested for you</h3>
+  <h3 class="font-bold text-lg mb-3 shrink-0">Suggested for you</h3>
   @if (loading) {
   <div class="text-center py-2">Loading...</div>
   } @else {
@@ -16,7 +16,7 @@
       <app-follow-button [targetUserId]="user.id" [isFollowing]="false"></app-follow-button>
     </div>
     } @empty {
-    <div class="text-gray-500 text-sm text-center">No suggestions right now</div>
+    <div class="text-gray-500 text-sm text-center">No suggestions found</div>
     }
   </div>
   }

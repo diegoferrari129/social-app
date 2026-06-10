@@ -1,5 +1,5 @@
 <div class="bg-white rounded-lg shadow p-4 h-full flex flex-col">
-  <h3 class="font-bold text-lg mb-3 flex-shrink-0">Chat</h3>
+  <h3 class="font-bold text-lg mb-3 shrink-0">Chat</h3>
   @if (loading) {
   <div class="text-center py-2">Loading...</div>
   } @else {
@@ -29,13 +29,13 @@
       </div>
     </a>
     } @empty {
-    <div class="text-gray-500 text-sm text-center">Nessuna conversazione</div>
+    <div class="text-gray-500 text-sm text-center">No Conversation found</div>
     }
   </div>
   }
 </div>
 
-<!-- Popup chat (se aperto) -->
+<!-- Popup chat -->
 @if (selectedChatUserId) {
 <app-chat [targetUserId]="selectedChatUserId" (close)="closeChat()"></app-chat>
 }
